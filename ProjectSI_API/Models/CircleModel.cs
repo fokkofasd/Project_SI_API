@@ -5,7 +5,7 @@ using System.Web;
 
 namespace ProjectSI_API.Models
 {
-    public class Circle
+    public class CircleModel
     {
         public string id { get; set; }
         public string circleCode { get; set; }

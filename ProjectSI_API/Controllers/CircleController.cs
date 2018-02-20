@@ -55,7 +55,7 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("isDuplicate")]
-        public async Task<IHttpActionResult> isDuplicate(Models.Circle model)
+        public async Task<IHttpActionResult> isDuplicate(Models.CircleModel model)
         {
             DAL.Circle circle = _db.Circles.Where(p => p.circleCode == model.circleCode).FirstOrDefault();
             if (circle != null)
