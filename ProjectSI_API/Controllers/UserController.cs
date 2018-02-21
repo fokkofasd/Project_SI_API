@@ -62,6 +62,12 @@ namespace ProjectSI_API.Controllers
             return null;
         }
 
+        private IHttpActionResult duplicate()
+        {
+            ModelState.AddModelError("121", "duplicate");
+            return BadRequest(ModelState);
+        }
+
         public async Task<IHttpActionResult> create(UserModels model)
         {
             if (!ModelState.IsValid)
@@ -85,7 +91,6 @@ namespace ProjectSI_API.Controllers
             gen.firstname = model.firstname;
             gen.lastname = model.lastname;
             gen.nickname = model.nickname;
-            gen.email = model.Email;
             gen.role = model.role;
             gen.status = "1";
 
@@ -95,5 +100,64 @@ namespace ProjectSI_API.Controllers
             return Ok();
         }
 
+        public async Task<IHttpActionResult> update(UserModels model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+
+            //IdentityResult result = await UserManager.UpdateAsync(user);
+
+            //if (!result.Succeeded)
+            //{
+            //    return GetErrorResult(result);
+            //}
+
+            DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
+            //DAL.User gen = new DAL.User();
+            nowUser.firstname = model.firstname;
+            nowUser.lastname = model.lastname;
+            nowUser.nickname = model.nickname;
+            nowUser.role = model.role;
+            nowUser.status = model.status;
+
+            _db.Users.Add(nowUser);
+            _db.SaveChanges();
+
+            return Ok();
+        }
+
+        public async Task<IHttpActionResult> delete(string id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            DAL.User nowUser = _db.Users.Where(p => p.userID == id).First();
+            _db.Users.Remove(nowUser);
+            _db.SaveChanges();
+
+            return Ok();
+        }
+
+        public async Task<IHttpActionResult> isDuplicate(UserModels model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
+            if (nowUser != null)
+            {
+                return duplicate();
+            }
+
+            return Ok();
+        }
     }
 }
