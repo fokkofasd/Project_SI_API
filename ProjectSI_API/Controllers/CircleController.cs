@@ -16,19 +16,24 @@ namespace ProjectSI_API.Controllers
     {
         SIDBEntities _db = new SIDBEntities();
 
-        private IHttpActionResult duplicate()
-        {
-            ModelState.AddModelError("121", "duplicate");
-            return BadRequest(ModelState);
-        }
-
         [Route("create")]
         public async Task<IHttpActionResult> create(DAL.Circle model)
         {
-            model.status = "1";
-            _db.Circle.Add(model);
-            _db.SaveChanges();
-            return Ok();
+            Boolean result = true;
+            try
+            {
+                System.Web.HttpContext.Current.Application.Lock();
+                    model.status = Models.Enum.STATUS_ACTIVE;
+                    _db.Circle.Add(model);
+                    _db.SaveChanges();
+                System.Web.HttpContext.Current.Application.UnLock();
+            }
+            catch (Exception e)
+            {
+                result = false;
+            }
+
+            return Json(new { result = result });
         }
 
         [Route("update")]
@@ -55,15 +60,16 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("isDuplicate")]
-        public async Task<IHttpActionResult> isDuplicate(Models.CircleModel model)
+        public Boolean isDuplicate(Models.CircleModel model)
         {
+            Boolean result = true;
             DAL.Circle circle = _db.Circle.Where(p => p.circleCode == model.circleCode).FirstOrDefault();
             if (circle != null)
             {
-                return duplicate();
+                result = false;
             }
 
-            return Ok();
+            return result;
         }
 
     }
