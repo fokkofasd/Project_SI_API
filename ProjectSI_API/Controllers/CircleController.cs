@@ -26,7 +26,7 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> create(DAL.Circle model)
         {
             model.status = "1";
-            _db.Circles.Add(model);
+            _db.Circle.Add(model);
             _db.SaveChanges();
             return Ok();
         }
@@ -34,7 +34,7 @@ namespace ProjectSI_API.Controllers
         [Route("update")]
         public async Task<IHttpActionResult> update(DAL.Circle model)
         {
-            DAL.Circle circle = _db.Circles.Where(p => p.id == model.id).FirstOrDefault();
+            DAL.Circle circle = _db.Circle.Where(p => p.id == model.id).FirstOrDefault();
             circle.circleCode = model.circleCode;
             circle.circleName = model.circleName;
             circle.status = model.status;
@@ -47,8 +47,8 @@ namespace ProjectSI_API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> delete(String circleId)
         {
-            DAL.Circle circle = _db.Circles.Where(p => p.id == circleId).FirstOrDefault();
-            _db.Circles.Remove(circle);
+            DAL.Circle circle = _db.Circle.Where(p => p.id == circleId).FirstOrDefault();
+            _db.Circle.Remove(circle);
             _db.SaveChanges();
 
             return Ok();
@@ -57,7 +57,7 @@ namespace ProjectSI_API.Controllers
         [Route("isDuplicate")]
         public async Task<IHttpActionResult> isDuplicate(Models.CircleModel model)
         {
-            DAL.Circle circle = _db.Circles.Where(p => p.circleCode == model.circleCode).FirstOrDefault();
+            DAL.Circle circle = _db.Circle.Where(p => p.circleCode == model.circleCode).FirstOrDefault();
             if (circle != null)
             {
                 return duplicate();

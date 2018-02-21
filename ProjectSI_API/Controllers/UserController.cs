@@ -78,7 +78,7 @@ namespace ProjectSI_API.Controllers
                 return GetErrorResult(result);
             }
 
-            DAL.AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
@@ -89,7 +89,7 @@ namespace ProjectSI_API.Controllers
             gen.role = model.role;
             gen.status = "1";
 
-            _db.Users.Add(gen);
+            _db.User.Add(gen);
             _db.SaveChanges();
 
             return Ok();
