@@ -10,5 +10,6 @@ namespace ProjectSI_API.Models
         public string id { get; set; }
         public string circleCode { get; set; }
         public string circleName { get; set; }
+        public string status { get; set; }
     }
 }
