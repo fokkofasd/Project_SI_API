@@ -133,7 +133,7 @@ namespace ProjectSI_API.Controllers
             return Ok();
         }
 
-        [Route("delete")]
+        [Route("delete/{userId}")]
         public async Task<IHttpActionResult> delete(string id)
         {
             //if (!ModelState.IsValid)
