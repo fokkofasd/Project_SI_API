@@ -10,19 +10,19 @@ using System.Web.Http;
 namespace ProjectSI_API.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/category")]
-    public class CategoryController : ApiController
+    [RoutePrefix("api/evaluation")]
+    public class EvaluationController : ApiController
     {
         SIDBEntities _db = new SIDBEntities();
 
         [Route("create")]
-        public async Task<IHttpActionResult> create(DAL.Category model)
+        public async Task<IHttpActionResult> create(DAL.Evaluation model)
         {
             Boolean result = true;
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                _db.Category.Add(model);
+                _db.Evaluation.Add(model);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -35,15 +35,16 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("update")]
-        public async Task<IHttpActionResult> update(DAL.Category model)
+        public async Task<IHttpActionResult> update(DAL.Evaluation model)
         {
             Boolean result = true;
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category category = _db.Category.Where(p => p.id == model.id).FirstOrDefault();
-                category.categoryCode = model.categoryCode;
-                category.categoryName = model.categoryName;
+                DAL.Evaluation evaluation = _db.Evaluation.Where(p => p.id == model.id).FirstOrDefault();
+                evaluation.evaluationCode = model.evaluationCode;
+                evaluation.evaluationName = model.evaluationName;
+                evaluation.description = model.description;
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -55,16 +56,16 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("delete/{categoryId}")]
+        [Route("delete/{evaluationId}")]
         [HttpGet]
-        public async Task<IHttpActionResult> delete(int categoryId)
+        public async Task<IHttpActionResult> delete(int evaluationId)
         {
             Boolean result = true;
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category category = _db.Category.Where(p => p.id == categoryId).FirstOrDefault();
-                _db.Category.Remove(category);
+                DAL.Evaluation evaluation = _db.Evaluation.Where(p => p.id == evaluationId).FirstOrDefault();
+                _db.Evaluation.Remove(evaluation);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -77,17 +78,17 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("isDuplicateCode")]
-        public async Task<IHttpActionResult> isDuplicateCode(DAL.Category model)
+        public async Task<IHttpActionResult> isDuplicateCode(DAL.Evaluation model)
         {
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
-            var category = from m in _db.Category where m.categoryCode == model.categoryCode select m;
+            var evaluation = from m in _db.Evaluation where m.evaluationCode == model.evaluationCode select m;
             if (model.id != 0)
             {
-                category = from m in category where m.id != model.id select m;
+                evaluation = from m in evaluation where m.id != model.id select m;
             }
 
-            if (!category.Any())
+            if (!evaluation.Any())
             {
                 result = false;
             }
@@ -97,17 +98,17 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("isDuplicateName")]
-        public async Task<IHttpActionResult> isDuplicateName(DAL.Category model)
+        public async Task<IHttpActionResult> isDuplicateName(DAL.Evaluation model)
         {
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
-            var category = from m in _db.Category where m.categoryName == model.categoryName select m;
+            var evaluation = from m in _db.Evaluation where m.evaluationName == model.evaluationName select m;
             if (model.id != 0)
             {
-                category = from m in category where m.id != model.id select m;
+                evaluation = from m in evaluation where m.id != model.id select m;
             }
 
-            if (!category.Any())
+            if (!evaluation.Any())
             {
                 result = false;
             }
@@ -116,36 +117,37 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("getcategory/{categoryId}")]
+        [Route("getevaluation/{evaluationId}")]
         [HttpGet]
-        public async Task<IHttpActionResult> getCategory(int categoryId)
+        public async Task<IHttpActionResult> getevaluation(int evaluationId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.Category category = _db.Category.Where(p => p.id == categoryId).FirstOrDefault();
+            DAL.Evaluation evaluation = _db.Evaluation.Where(p => p.id == evaluationId).FirstOrDefault();
             System.Web.HttpContext.Current.Application.UnLock();
-            return Json(category);
+            return Json(evaluation);
         }
 
         [Route("search")]
-        public async Task<IHttpActionResult> search(DAL.Category model)
+        public async Task<IHttpActionResult> search(DAL.Evaluation model)
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var category = from m in _db.Category select m;
-            if (model.categoryName != null)
+            var evaluation = from m in _db.Evaluation select m;
+            if (model.evaluationName != null)
             {
-                category = from m in category where m.categoryName.Contains(model.categoryName) select m;
+                evaluation = from m in evaluation where m.evaluationName.Contains(model.evaluationName) select m;
             }
-            if (model.categoryCode != null)
+            if (model.evaluationCode != null)
             {
-                category = from m in category where m.categoryCode.Contains(model.categoryCode) select m;
+                evaluation = from m in evaluation where m.evaluationCode.Contains(model.evaluationCode) select m;
             }
 
-            category = from m in category orderby m.categoryCode select m;
+            evaluation = from m in evaluation orderby m.evaluationCode select m;
 
             System.Web.HttpContext.Current.Application.UnLock();
-            return Json(category);
+            return Json(evaluation);
         }
 
     }
 }
+
