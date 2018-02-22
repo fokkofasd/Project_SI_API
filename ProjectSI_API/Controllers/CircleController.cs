@@ -60,7 +60,7 @@ namespace ProjectSI_API.Controllers
 
         [Route("delete/{circleId}")]
         [HttpGet]
-        public async Task<IHttpActionResult> delete(String circleId)
+        public async Task<IHttpActionResult> delete(int circleId)
         {
             Boolean result = true;
             try
@@ -85,7 +85,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
                 var circle = from m in _db.Circle where m.circleCode == model.circleCode select m;
-                if (model.id != null)
+                if (model.id != 0)
                 {
                     circle = from m in circle where m.id != model.id select m;
                 }
@@ -105,7 +105,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
                 var circle = from m in _db.Circle where m.circleName == model.circleName select m;
-                if (model.id != null)
+                if (model.id != 0)
                 {
                     circle = from m in circle where m.id != model.id select m;
                 }
@@ -121,7 +121,7 @@ namespace ProjectSI_API.Controllers
 
         [Route("getcircle/{circleId}")]
         [HttpGet]
-        public async Task<IHttpActionResult> getCircle(String circleId)
+        public async Task<IHttpActionResult> getCircle(int circleId)
         {
             System.Web.HttpContext.Current.Application.Lock();
                 DAL.Circle circle = _db.Circle.Where(p => p.id == circleId).FirstOrDefault();
@@ -142,7 +142,7 @@ namespace ProjectSI_API.Controllers
                 {
                     circle = from m in circle where m.circleCode.Contains(model.circleCode) select m;
                 }
-                if (model.status != null)
+                if (model.status != 0)
                 {
                     circle = from m in circle where m.status == model.status select m;
                 }

@@ -7,9 +7,10 @@ namespace ProjectSI_API.Models
 {
     public class CircleModel
     {
-        public string id { get; set; }
+        public int id { get; set; }
         public string circleCode { get; set; }
         public string circleName { get; set; }
-        public string status { get; set; }
+        public int circleTime { get; set; }
+        public int status { get; set; }
     }
 }
