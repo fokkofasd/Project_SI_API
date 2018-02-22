@@ -86,7 +86,7 @@ namespace ProjectSI_API.Controllers
                 return GetErrorResult(result);
             }
 
-            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
@@ -119,18 +119,15 @@ namespace ProjectSI_API.Controllers
             //    return GetErrorResult(result);
             //}
 
-            DAL.User nowUser = _db.User.Where(p => p.userID == model.userID).First();
+            DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
             //DAL.User gen = new DAL.User();
             nowUser.firstname = model.firstname;
             nowUser.lastname = model.lastname;
             nowUser.nickname = model.nickname;
             nowUser.role = model.role;
             nowUser.status = model.status;
-
-<<<<<<< HEAD
-=======
-            _db.User.Add(nowUser);
->>>>>>> 591758fdfeac931549df09dcfd1094304da0016c
+            
+            _db.Users.Add(nowUser);
             _db.SaveChanges();
 
             return Ok();
@@ -144,7 +141,6 @@ namespace ProjectSI_API.Controllers
             //    return BadRequest(ModelState);
             //}
 
-<<<<<<< HEAD
             Boolean result = true;
             DAL.User nowUser = _db.Users.Where(p => p.userID == id).First();
             DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == id).First();
@@ -155,11 +151,9 @@ namespace ProjectSI_API.Controllers
                     System.Web.HttpContext.Current.Application.Lock();
                     _db.Users.Remove(nowUser);
                     _db.SaveChanges();
-=======
-            DAL.User nowUser = _db.User.Where(p => p.userID == id).First();
-            _db.User.Remove(nowUser);
-            _db.SaveChanges();
->>>>>>> 591758fdfeac931549df09dcfd1094304da0016c
+                    nowUser = _db.Users.Where(p => p.userID == id).First();
+                    _db.Users.Remove(nowUser);
+                    _db.SaveChanges();
 
                     _db.AspNetUsers.Remove(nowAccount);
                     _db.SaveChanges();
@@ -182,13 +176,47 @@ namespace ProjectSI_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            DAL.User nowUser = _db.User.Where(p => p.userID == model.userID).First();
+            DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
             if (nowUser != null)
             {
                 return duplicate();
             }
 
             return Ok();
+        }
+
+        [Route("getuser/{userId}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getUser(string userId)
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+            DAL.User user = _db.Users.Where(p => p.userID == userId).FirstOrDefault();
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(user);
+        }
+
+        [Route("search")]
+        public async Task<IHttpActionResult> search(UserModels model)
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+
+            var user = from m in _db.Users select m;
+            if (model.firstname != null)
+            {
+                user = from m in user where m.firstname.Contains(model.firstname) select m;
+            }
+            if (model.lastname != null)
+            {
+                user = from m in user where m.lastname.Contains(model.lastname) select m;
+            }
+            if (model.status != 0)
+            {
+                user = from m in user where m.status == model.status select m;
+            }
+            user = from m in user orderby m.firstname select m;
+
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(user);
         }
     }
 }
