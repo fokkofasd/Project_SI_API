@@ -57,7 +57,7 @@ namespace ProjectSI_API.Controllers
 
         [Route("delete/{categoryId}")]
         [HttpGet]
-        public async Task<IHttpActionResult> delete(String categoryId)
+        public async Task<IHttpActionResult> delete(int categoryId)
         {
             Boolean result = true;
             try
@@ -82,7 +82,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
             var category = from m in _db.Category where m.categoryCode == model.categoryCode select m;
-            if (model.id != null)
+            if (model.id != 0)
             {
                 category = from m in category where m.id != model.id select m;
             }
@@ -102,7 +102,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
             var category = from m in _db.Category where m.categoryName == model.categoryName select m;
-            if (model.id != null)
+            if (model.id != 0)
             {
                 category = from m in category where m.id != model.id select m;
             }
@@ -118,7 +118,7 @@ namespace ProjectSI_API.Controllers
 
         [Route("getcategory/{categoryId}")]
         [HttpGet]
-        public async Task<IHttpActionResult> getCircle(String categoryId)
+        public async Task<IHttpActionResult> getCircle(int categoryId)
         {
             System.Web.HttpContext.Current.Application.Lock();
             DAL.Category circle = _db.Category.Where(p => p.id == categoryId).FirstOrDefault();

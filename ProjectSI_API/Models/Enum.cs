@@ -7,7 +7,7 @@ namespace ProjectSI_API.Models
 {
     public class Enum
     {
-        public const string STATUS_ACTIVE = "1";
-        public const string STATUS_INACTIVE = "2";
+        public const int STATUS_ACTIVE = 1;
+        public const int STATUS_INACTIVE = 2;
     }
 }
