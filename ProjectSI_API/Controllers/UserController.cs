@@ -13,6 +13,7 @@ using System.Web.Http;
 namespace ProjectSI_API.Controllers
 {
     [Authorize]
+    [RoutePrefix("api/user")]
     public class UserController : ApiController
     {
 
@@ -68,6 +69,7 @@ namespace ProjectSI_API.Controllers
             return BadRequest(ModelState);
         }
 
+        [Route("create")]
         public async Task<IHttpActionResult> create(UserModels model)
         {
             if (!ModelState.IsValid)
@@ -84,7 +86,7 @@ namespace ProjectSI_API.Controllers
                 return GetErrorResult(result);
             }
 
-            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
@@ -94,18 +96,19 @@ namespace ProjectSI_API.Controllers
             gen.role = model.role;
             gen.status = Models.Enum.STATUS_ACTIVE;
 
-            _db.User.Add(gen);
+            _db.Users.Add(gen);
             _db.SaveChanges();
 
             return Ok();
         }
 
+        [Route("update")]
         public async Task<IHttpActionResult> update(UserModels model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
             //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
 
@@ -116,34 +119,56 @@ namespace ProjectSI_API.Controllers
             //    return GetErrorResult(result);
             //}
 
-            DAL.User nowUser = _db.User.Where(p => p.userID == model.userID).First();
+            DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
             //DAL.User gen = new DAL.User();
             nowUser.firstname = model.firstname;
             nowUser.lastname = model.lastname;
             nowUser.nickname = model.nickname;
             nowUser.role = model.role;
             nowUser.status = model.status;
-
-            _db.User.Add(nowUser);
+            
+            _db.Users.Add(nowUser);
             _db.SaveChanges();
 
             return Ok();
         }
 
+        [Route("delete")]
         public async Task<IHttpActionResult> delete(string id)
         {
-            if (!ModelState.IsValid)
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+
+            Boolean result = true;
+            DAL.User nowUser = _db.Users.Where(p => p.userID == id).First();
+            DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == id).First();
+            if (nowUser != null && nowAccount != null)
             {
-                return BadRequest(ModelState);
+                try
+                {
+                    System.Web.HttpContext.Current.Application.Lock();
+                    _db.Users.Remove(nowUser);
+                    _db.SaveChanges();
+                    nowUser = _db.Users.Where(p => p.userID == id).First();
+                    _db.Users.Remove(nowUser);
+                    _db.SaveChanges();
+
+                    _db.AspNetUsers.Remove(nowAccount);
+                    _db.SaveChanges();
+                    System.Web.HttpContext.Current.Application.UnLock();
+                }
+                catch (Exception e)
+                {
+                    result = false;
+                }
             }
 
-            DAL.User nowUser = _db.User.Where(p => p.userID == id).First();
-            _db.User.Remove(nowUser);
-            _db.SaveChanges();
-
-            return Ok();
+            return Json(new { result = result });
         }
 
+        [Route("isDuplicate")]
         public async Task<IHttpActionResult> isDuplicate(UserModels model)
         {
             if (!ModelState.IsValid)
@@ -151,13 +176,47 @@ namespace ProjectSI_API.Controllers
                 return BadRequest(ModelState);
             }
 
-            DAL.User nowUser = _db.User.Where(p => p.userID == model.userID).First();
+            DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
             if (nowUser != null)
             {
                 return duplicate();
             }
 
             return Ok();
+        }
+
+        [Route("getuser/{userId}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getUser(string userId)
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+            DAL.User user = _db.Users.Where(p => p.userID == userId).FirstOrDefault();
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(user);
+        }
+
+        [Route("search")]
+        public async Task<IHttpActionResult> search(UserModels model)
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+
+            var user = from m in _db.Users select m;
+            if (model.firstname != null)
+            {
+                user = from m in user where m.firstname.Contains(model.firstname) select m;
+            }
+            if (model.lastname != null)
+            {
+                user = from m in user where m.lastname.Contains(model.lastname) select m;
+            }
+            if (model.status != 0)
+            {
+                user = from m in user where m.status == model.status select m;
+            }
+            user = from m in user orderby m.firstname select m;
+
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(user);
         }
     }
 }
