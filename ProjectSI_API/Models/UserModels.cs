@@ -12,7 +12,7 @@ namespace ProjectSI_API.Models
         public string firstname { get; set; }
         public string lastname { get; set; }
         public string nickname { get; set; }
-        public string role { get; set; }
+        public int role { get; set; }
         public string commander { get; set; }
         public int status { get; set; }
         public string userID { get; set; }
