@@ -22,7 +22,7 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                _db.Category.Add(model);
+                _db.Categories.Add(model);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -41,7 +41,7 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category category = _db.Category.Where(p => p.id == model.id).FirstOrDefault();
+                DAL.Category category = _db.Categories.Where(p => p.id == model.id).FirstOrDefault();
                 category.categoryCode = model.categoryCode;
                 category.categoryName = model.categoryName;
                 _db.SaveChanges();
@@ -63,8 +63,8 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category category = _db.Category.Where(p => p.id == categoryId).FirstOrDefault();
-                _db.Category.Remove(category);
+                DAL.Category category = _db.Categories.Where(p => p.id == categoryId).FirstOrDefault();
+                _db.Categories.Remove(category);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -81,7 +81,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
-            var category = from m in _db.Category where m.categoryCode == model.categoryCode select m;
+            var category = from m in _db.Categories where m.categoryCode == model.categoryCode select m;
             if (model.id != 0)
             {
                 category = from m in category where m.id != model.id select m;
@@ -101,7 +101,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
-            var category = from m in _db.Category where m.categoryName == model.categoryName select m;
+            var category = from m in _db.Categories where m.categoryName == model.categoryName select m;
             if (model.id != 0)
             {
                 category = from m in category where m.id != model.id select m;
@@ -121,7 +121,7 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getCategory(int categoryId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.Category category = _db.Category.Where(p => p.id == categoryId).FirstOrDefault();
+            DAL.Category category = _db.Categories.Where(p => p.id == categoryId).FirstOrDefault();
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(category);
         }
@@ -131,7 +131,7 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var category = from m in _db.Category select m;
+            var category = from m in _db.Categories select m;
             if (model.categoryName != null)
             {
                 category = from m in category where m.categoryName.Contains(model.categoryName) select m;

@@ -28,7 +28,7 @@ namespace ProjectSI_API.Controllers
         {
             List<DAL.UserType> type = null;
             System.Web.HttpContext.Current.Application.Lock();
-                type = _db.UserType.Where(p => p.status == status).ToList();
+                type = _db.UserTypes.Where(p => p.status == status).ToList();
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(type);
         }

@@ -200,7 +200,14 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var user = from m in _db.Users select m;
+            var user = from m in _db.Users select 
+                new
+                {
+                    firstname = m.firstname,
+                    lastname = m.lastname,
+                    status = m.status,
+                    userID = m.userID
+                };
             if (model.firstname != null)
             {
                 user = from m in user where m.firstname.Contains(model.firstname) select m;
