@@ -86,7 +86,7 @@ namespace ProjectSI_API.Controllers
                 return GetErrorResult(result);
             }
 
-            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
@@ -143,7 +143,7 @@ namespace ProjectSI_API.Controllers
 
             Boolean result = true;
             DAL.User nowUser = _db.Users.Where(p => p.userID == id).First();
-            DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == id).First();
+            DAL.AspNetUsers nowAccount = _db.AspNetUsers.Where(p => p.Id == id).First();
             if (nowUser != null && nowAccount != null)
             {
                 try
@@ -200,7 +200,14 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var user = from m in _db.Users select m;
+            var user = from m in _db.Users select 
+                new
+                {
+                    firstname = m.firstname,
+                    lastname = m.lastname,
+                    status = m.status,
+                    userID = m.userID
+                };
             if (model.firstname != null)
             {
                 user = from m in user where m.firstname.Contains(model.firstname) select m;
