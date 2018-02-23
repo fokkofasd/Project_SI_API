@@ -196,7 +196,7 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("search")]
-        public async Task<IHttpActionResult> search(UserModels model)
+        public async Task<IHttpActionResult> search(DAL.User model)
         {
             System.Web.HttpContext.Current.Application.Lock();
 
