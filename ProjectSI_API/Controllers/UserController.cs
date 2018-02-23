@@ -86,7 +86,7 @@ namespace ProjectSI_API.Controllers
                 return GetErrorResult(result);
             }
 
-            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
@@ -105,36 +105,32 @@ namespace ProjectSI_API.Controllers
         [Route("update")]
         public async Task<IHttpActionResult> update(UserModels model)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest(ModelState);
-            //}
+            Boolean result = true;
+            try
+            {
+                System.Web.HttpContext.Current.Application.Lock();
+                DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
+                //DAL.User gen = new DAL.User();
+                nowUser.firstname = model.firstname;
+                nowUser.lastname = model.lastname;
+                nowUser.nickname = model.nickname;
+                nowUser.role = model.role;
+                nowUser.status = model.status;
 
-            //var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+                _db.SaveChanges();
+                System.Web.HttpContext.Current.Application.UnLock();
+            }
+            catch (Exception e)
+            {
+                result = false;
+            }
 
-            //IdentityResult result = await UserManager.UpdateAsync(user);
-
-            //if (!result.Succeeded)
-            //{
-            //    return GetErrorResult(result);
-            //}
-
-            DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
-            //DAL.User gen = new DAL.User();
-            nowUser.firstname = model.firstname;
-            nowUser.lastname = model.lastname;
-            nowUser.nickname = model.nickname;
-            nowUser.role = model.role;
-            nowUser.status = model.status;
-            
-            _db.Users.Add(nowUser);
-            _db.SaveChanges();
-
-            return Ok();
+            return Json(new { result = result });
         }
 
         [Route("delete/{userId}")]
-        public async Task<IHttpActionResult> delete(string id)
+        [HttpGet]
+        public async Task<IHttpActionResult> delete(string userId)
         {
             //if (!ModelState.IsValid)
             //{
@@ -142,16 +138,13 @@ namespace ProjectSI_API.Controllers
             //}
 
             Boolean result = true;
-            DAL.User nowUser = _db.Users.Where(p => p.userID == id).First();
-            DAL.AspNetUsers nowAccount = _db.AspNetUsers.Where(p => p.Id == id).First();
+            DAL.User nowUser = _db.Users.Where(p => p.userID == userId).First();
+            DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
             if (nowUser != null && nowAccount != null)
             {
                 try
                 {
                     System.Web.HttpContext.Current.Application.Lock();
-                    _db.Users.Remove(nowUser);
-                    _db.SaveChanges();
-                    nowUser = _db.Users.Where(p => p.userID == id).First();
                     _db.Users.Remove(nowUser);
                     _db.SaveChanges();
 
@@ -171,18 +164,15 @@ namespace ProjectSI_API.Controllers
         [Route("isDuplicate")]
         public async Task<IHttpActionResult> isDuplicate(UserModels model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            Boolean result = true;
 
-            DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
+            var nowUser = _db.Users.Where(p => p.userID == model.userID).First();
             if (nowUser != null)
             {
                 return duplicate();
             }
-
-            return Ok();
+            
+            return Json(new { result = result });
         }
 
         [Route("getuser/{userId}")]
