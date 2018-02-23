@@ -86,7 +86,7 @@ namespace ProjectSI_API.Controllers
                 return GetErrorResult(result);
             }
 
-            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
@@ -143,7 +143,7 @@ namespace ProjectSI_API.Controllers
 
             Boolean result = true;
             DAL.User nowUser = _db.Users.Where(p => p.userID == id).First();
-            DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == id).First();
+            DAL.AspNetUsers nowAccount = _db.AspNetUsers.Where(p => p.Id == id).First();
             if (nowUser != null && nowAccount != null)
             {
                 try
