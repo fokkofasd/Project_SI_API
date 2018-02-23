@@ -79,14 +79,14 @@ namespace ProjectSI_API.Controllers
 
             var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
 
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+            IdentityResult result = await UserManager.CreateAsync(user, "password");
 
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
             }
 
-            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
@@ -94,6 +94,7 @@ namespace ProjectSI_API.Controllers
             gen.lastname = model.lastname;
             gen.nickname = model.nickname;
             gen.role = model.role;
+            gen.commander = model.commander;
             gen.status = Models.Enum.STATUS_ACTIVE;
 
             _db.Users.Add(gen);
@@ -116,6 +117,8 @@ namespace ProjectSI_API.Controllers
                 nowUser.nickname = model.nickname;
                 nowUser.role = model.role;
                 nowUser.status = model.status;
+                nowUser.commander = model.commander;
+                nowUser.personalID = model.personalID;
 
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
@@ -139,7 +142,7 @@ namespace ProjectSI_API.Controllers
 
             Boolean result = true;
             DAL.User nowUser = _db.Users.Where(p => p.userID == userId).First();
-            DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
+            DAL.AspNetUsers nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
             if (nowUser != null && nowAccount != null)
             {
                 try
@@ -180,9 +183,22 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getUser(string userId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.User user = _db.Users.Where(p => p.userID == userId).FirstOrDefault();
+            DAL.User user = _db.Users.Find(userId);
+            DAL.AspNetUsers aspNetUser = _db.AspNetUsers.Find(userId);
+            var daoUser = new
+            {
+                personalID = user.personalID,
+                firstname = user.firstname,
+                lastname = user.lastname,
+                nickname = user.nickname,
+                role = user.role,
+                commander = user.commander,
+                email = aspNetUser.Email,
+                status = user.status
+            };
+            
             System.Web.HttpContext.Current.Application.UnLock();
-            return Json(user);
+            return Json(daoUser);
         }
 
         [Route("search")]
@@ -196,7 +212,9 @@ namespace ProjectSI_API.Controllers
                     firstname = m.firstname,
                     lastname = m.lastname,
                     status = m.status,
-                    userID = m.userID
+                    userID = m.userID,
+                    nickname = m.nickname,
+                    role = m.role
                 };
             if (model.firstname != null)
             {
@@ -211,6 +229,8 @@ namespace ProjectSI_API.Controllers
                 user = from m in user where m.status == model.status select m;
             }
             user = from m in user orderby m.firstname select m;
+
+
 
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(user);
