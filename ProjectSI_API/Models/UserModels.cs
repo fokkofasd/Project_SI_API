@@ -8,23 +8,39 @@ namespace ProjectSI_API.Models
 {
     public class UserModels
     {
+        [Required(ErrorMessage = "กรุณากรอกรหัสประจำตัว")]
+        [Display(Name = "personalID")]
         public string personalID { get; set; }
+
+        [Required]
+        [Display(Name = "firstname")]
         public string firstname { get; set; }
+
+        [Required]
+        [Display(Name = "lastname")]
         public string lastname { get; set; }
+
         public string nickname { get; set; }
-        public int role { get; set; }
+
+        [Required(ErrorMessage = "Please enter how many Stream Entries are displayed per page.")]
+        [Display(Name = "role")]
+        public Nullable<int> role { get; set; }
+
         public string commander { get; set; }
-        public int status { get; set; }
+
+        [Required]
+        public Nullable<int> status { get; set; }
+
         public string userID { get; set; }
 
         [Required]
         [Display(Name = "Email")]
-        public string Email { get; set; }
+        public string email { get; set; }
 
         //[Required]
         //[StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 8)]
         //[DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "password")]
         public string Password { get; set; }
 
         ////[DataType(DataType.Password)]

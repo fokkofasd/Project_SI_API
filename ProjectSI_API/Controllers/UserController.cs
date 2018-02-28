@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.ModelBinding;
 
 namespace ProjectSI_API.Controllers
 {
@@ -74,26 +75,27 @@ namespace ProjectSI_API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+
+                return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
             }
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+            var user = new ApplicationUser() { UserName = model.email, Email = model.email };
 
             IdentityResult result = await UserManager.CreateAsync(user, "password");
 
             if (!result.Succeeded)
             {
-                return GetErrorResult(result);
+                return Json(GetErrorResult(result));
             }
 
-            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
             gen.firstname = model.firstname;
             gen.lastname = model.lastname;
             gen.nickname = model.nickname;
-            gen.role = model.role;
+            gen.role = (int)model.role;
             gen.commander = model.commander;
             gen.status = Models.Enum.STATUS_ACTIVE;
 
@@ -115,8 +117,8 @@ namespace ProjectSI_API.Controllers
                 nowUser.firstname = model.firstname;
                 nowUser.lastname = model.lastname;
                 nowUser.nickname = model.nickname;
-                nowUser.role = model.role;
-                nowUser.status = model.status;
+                nowUser.role = (int)model.role;
+                nowUser.status = (int)model.status;
                 nowUser.commander = model.commander;
                 nowUser.personalID = model.personalID;
 
@@ -142,7 +144,7 @@ namespace ProjectSI_API.Controllers
 
             Boolean result = true;
             DAL.User nowUser = _db.Users.Where(p => p.userID == userId).First();
-            DAL.AspNetUsers nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
+            DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
             if (nowUser != null && nowAccount != null)
             {
                 try
@@ -184,7 +186,7 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
             DAL.User user = _db.Users.Find(userId);
-            DAL.AspNetUsers aspNetUser = _db.AspNetUsers.Find(userId);
+            DAL.AspNetUser aspNetUser = _db.AspNetUsers.Find(userId);
             var daoUser = new
             {
                 personalID = user.personalID,
