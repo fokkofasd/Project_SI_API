@@ -131,17 +131,25 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var category = from m in _db.Categories select m;
+
+            //var category = from m in _db.Categories select m;
+            var category = from m in _db.Categories
+                           select
+                new
+                {
+                    categoryName = m.categoryName,
+                    //status = m.status
+                };
             if (model.categoryName != null)
             {
                 category = from m in category where m.categoryName.Contains(model.categoryName) select m;
             }
-            if (model.categoryCode != null)
-            {
-                category = from m in category where m.categoryCode.Contains(model.categoryCode) select m;
-            }
+            //if (model.status != 0)
+            //{
+            //    category = from m in category where m.status == model.status select m;
+            //}
 
-            category = from m in category orderby m.categoryCode select m;
+            category = from m in category orderby m.categoryName select m;
 
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(category);
