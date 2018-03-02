@@ -94,9 +94,8 @@ namespace ProjectSI_API.Controllers
             gen.personalID = model.personalID;
             gen.firstname = model.firstname;
             gen.lastname = model.lastname;
-            gen.nickname = model.nickname;
-            gen.role = (int)model.role;
-            gen.commander = model.commander;
+            gen.userTypeID = (int)model.userTypeID;
+            gen.commanderID = model.commanderID;
             gen.status = Models.Enum.STATUS_ACTIVE;
 
             _db.Users.Add(gen);
@@ -116,10 +115,9 @@ namespace ProjectSI_API.Controllers
                 //DAL.User gen = new DAL.User();
                 nowUser.firstname = model.firstname;
                 nowUser.lastname = model.lastname;
-                nowUser.nickname = model.nickname;
-                nowUser.role = (int)model.role;
+                nowUser.userTypeID = (int)model.userTypeID;
                 nowUser.status = (int)model.status;
-                nowUser.commander = model.commander;
+                nowUser.commanderID = model.commanderID;
                 nowUser.personalID = model.personalID;
 
                 _db.SaveChanges();
@@ -192,9 +190,8 @@ namespace ProjectSI_API.Controllers
                 personalID = user.personalID,
                 firstname = user.firstname,
                 lastname = user.lastname,
-                nickname = user.nickname,
-                role = user.role,
-                commander = user.commander,
+                userTypeID = user.userTypeID,
+                commanderID = user.commanderID,
                 email = aspNetUser.Email,
                 status = user.status
             };
@@ -215,8 +212,7 @@ namespace ProjectSI_API.Controllers
                     lastname = m.lastname,
                     status = m.status,
                     userID = m.userID,
-                    nickname = m.nickname,
-                    role = m.role
+                    userTypeID = m.userTypeID
                 };
             if (model.firstname != null)
             {

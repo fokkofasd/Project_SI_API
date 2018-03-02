@@ -23,10 +23,10 @@ namespace ProjectSI_API.Models
         public string nickname { get; set; }
 
         [Required(ErrorMessage = "Please enter how many Stream Entries are displayed per page.")]
-        [Display(Name = "role")]
-        public Nullable<int> role { get; set; }
+        [Display(Name = "userType")]
+        public Nullable<int> userTypeID { get; set; }
 
-        public string commander { get; set; }
+        public string commanderID { get; set; }
 
         [Required]
         public Nullable<int> status { get; set; }

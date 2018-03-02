@@ -44,7 +44,6 @@ namespace ProjectSI_API.Controllers
             {
                 System.Web.HttpContext.Current.Application.Lock();
                     DAL.Circle circle = _db.Circles.Where(p => p.id == model.id).FirstOrDefault();
-                    circle.circleCode = model.circleCode;
                     circle.circleName = model.circleName;
                     circle.status = model.status;
                     _db.SaveChanges();
@@ -79,25 +78,6 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("isDuplicateCode")]
-        public async Task<IHttpActionResult> isDuplicateCode(Models.CircleModel model)
-        {
-            Boolean result = true;
-            System.Web.HttpContext.Current.Application.Lock();
-                var circle = from m in _db.Circles where m.circleCode == model.circleCode select m;
-                if (model.id != 0)
-                {
-                    circle = from m in circle where m.id != model.id select m;
-                }
-                    
-                if (!circle.Any())
-                {
-                    result = false;
-                }
-            System.Web.HttpContext.Current.Application.UnLock();
-
-            return Json(new { result = result });
-        }
 
         [Route("isDuplicateName")]
         public async Task<IHttpActionResult> isDuplicateName(Models.CircleModel model)
@@ -137,10 +117,6 @@ namespace ProjectSI_API.Controllers
                 var circle = from m in _db.Circles select m;
                 if (model.circleName != null) {
                     circle = from m in circle where m.circleName.Contains(model.circleName) select m;
-                }
-                if (model.circleCode != null)
-                {
-                    circle = from m in circle where m.circleCode.Contains(model.circleCode) select m;
                 }
                 if (model.status != 0)
                 {

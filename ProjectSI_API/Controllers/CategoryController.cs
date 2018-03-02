@@ -42,7 +42,6 @@ namespace ProjectSI_API.Controllers
             {
                 System.Web.HttpContext.Current.Application.Lock();
                 DAL.Category category = _db.Categories.Where(p => p.id == model.id).FirstOrDefault();
-                category.categoryCode = model.categoryCode;
                 category.categoryName = model.categoryName;
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
@@ -81,7 +80,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
-            var category = from m in _db.Categories where m.categoryCode == model.categoryCode select m;
+            var category = from m in _db.Categories where m.id == model.id select m;
             if (model.id != 0)
             {
                 category = from m in category where m.id != model.id select m;
@@ -133,8 +132,7 @@ namespace ProjectSI_API.Controllers
 
 
             //var category = from m in _db.Categories select m;
-            var category = from m in _db.Categories
-                           select
+            var category = from m in _db.Categories select
                 new
                 {
                     categoryName = m.categoryName,

@@ -42,7 +42,6 @@ namespace ProjectSI_API.Controllers
             {
                 System.Web.HttpContext.Current.Application.Lock();
                 DAL.Evaluation evaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
-                evaluation.evaluationCode = model.evaluationCode;
                 evaluation.evaluationName = model.evaluationName;
                 evaluation.description = model.description;
                 _db.SaveChanges();
@@ -73,26 +72,6 @@ namespace ProjectSI_API.Controllers
             {
                 result = false;
             }
-
-            return Json(new { result = result });
-        }
-
-        [Route("isDuplicateCode")]
-        public async Task<IHttpActionResult> isDuplicateCode(DAL.Evaluation model)
-        {
-            Boolean result = true;
-            System.Web.HttpContext.Current.Application.Lock();
-            var evaluation = from m in _db.Evaluations where m.evaluationCode == model.evaluationCode select m;
-            if (model.id != 0)
-            {
-                evaluation = from m in evaluation where m.id != model.id select m;
-            }
-
-            if (!evaluation.Any())
-            {
-                result = false;
-            }
-            System.Web.HttpContext.Current.Application.UnLock();
 
             return Json(new { result = result });
         }
@@ -137,12 +116,8 @@ namespace ProjectSI_API.Controllers
             {
                 evaluation = from m in evaluation where m.evaluationName.Contains(model.evaluationName) select m;
             }
-            if (model.evaluationCode != null)
-            {
-                evaluation = from m in evaluation where m.evaluationCode.Contains(model.evaluationCode) select m;
-            }
 
-            evaluation = from m in evaluation orderby m.evaluationCode select m;
+            evaluation = from m in evaluation orderby m.id select m;
 
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(evaluation);
