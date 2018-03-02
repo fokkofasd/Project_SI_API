@@ -16,19 +16,42 @@ namespace ProjectSI_API.Controllers
         SIDBEntities _db = new SIDBEntities();
 
         [Route("create")]
-        public async Task<IHttpActionResult> create(DAL.Evaluation model)
+        public async Task<IHttpActionResult> create(Models.EvaluationQuestionModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
+            }
             Boolean result = true;
             try
             {
+                Evaluation eval = new Evaluation();
+                eval.evaluationName = model.evaluationName;
+                eval.description = model.description;
+
                 System.Web.HttpContext.Current.Application.Lock();
-                _db.Evaluations.Add(model);
-                _db.SaveChanges();
+                _db.Evaluations.Add(eval);
+                int isSave = _db.SaveChanges();
+                if (isSave == 1)
+                {
+                    Evaluation e = _db.Evaluations.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
+                    List<Question> qList = new List<Question>();
+                    foreach (var q in model.questions)
+                    {
+                        Question quest = new Question();
+                        quest.question1 = q.value;
+                        quest.evaluationID = e.id;
+                        qList.Add(quest);
+                    }
+                    _db.Questions.AddRange(qList);
+                    _db.SaveChanges();
+                    
+                }
                 System.Web.HttpContext.Current.Application.UnLock();
             }
             catch (Exception e)
             {
-                result = false;
+                return Json(e.Message);
             }
 
             return Json(new { result = result });
@@ -111,13 +134,18 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var evaluation = from m in _db.Evaluations select m;
-            if (model.evaluationName != null)
-            {
-                evaluation = from m in evaluation where m.evaluationName.Contains(model.evaluationName) select m;
-            }
+            var evaluation = from m in _db.Evaluations select
+                                new
+                                {
+                                    evaluationName = m.evaluationName,
+                                    description = m.description
+                                };
+                if (model.evaluationName != null)
+                {
+                    evaluation = from m in evaluation where m.evaluationName.Contains(model.evaluationName) select m;
+                }
 
-            evaluation = from m in evaluation orderby m.id select m;
+            evaluation = from m in evaluation orderby m.evaluationName select m;
 
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(evaluation);

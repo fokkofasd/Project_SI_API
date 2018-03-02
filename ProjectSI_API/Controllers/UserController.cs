@@ -94,8 +94,8 @@ namespace ProjectSI_API.Controllers
             gen.personalID = model.personalID;
             gen.firstname = model.firstname;
             gen.lastname = model.lastname;
-            gen.userTypeID = (int)model.userTypeID;
-            gen.commanderID = model.commanderID;
+            gen.userTypeID = model.role;
+            //gen.commanderID = model.commanderID;
             gen.status = Models.Enum.STATUS_ACTIVE;
 
             _db.Users.Add(gen);
@@ -115,9 +115,9 @@ namespace ProjectSI_API.Controllers
                 //DAL.User gen = new DAL.User();
                 nowUser.firstname = model.firstname;
                 nowUser.lastname = model.lastname;
-                nowUser.userTypeID = (int)model.userTypeID;
+                nowUser.userTypeID = (int)model.role;
                 nowUser.status = (int)model.status;
-                nowUser.commanderID = model.commanderID;
+                //nowUser.commanderID = model.commanderID;
                 nowUser.personalID = model.personalID;
 
                 _db.SaveChanges();
