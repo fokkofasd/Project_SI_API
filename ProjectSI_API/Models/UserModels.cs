@@ -12,11 +12,11 @@ namespace ProjectSI_API.Models
         [Display(Name = "personalID")]
         public string personalID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "กรุณากรอกชื่อ")]
         [Display(Name = "firstname")]
         public string firstname { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "กรุณากรอกนามสกุล")]
         [Display(Name = "lastname")]
         public string lastname { get; set; }
 
@@ -33,7 +33,7 @@ namespace ProjectSI_API.Models
 
         public string userID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "กรุณากรอกอีเมล์")]
         [Display(Name = "Email")]
         public string email { get; set; }
 

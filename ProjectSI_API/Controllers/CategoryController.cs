@@ -22,7 +22,7 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                _db.Categories.Add(model);
+                _db.Category.Add(model);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -41,8 +41,9 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category category = _db.Categories.Where(p => p.id == model.id).FirstOrDefault();
+                DAL.Category category = _db.Category.Where(p => p.id == model.id).FirstOrDefault();
                 category.categoryName = model.categoryName;
+                category.status = model.status;
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -54,16 +55,16 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("delete/{categoryId}")]
+        [Route("delete/{id}")]
         [HttpGet]
-        public async Task<IHttpActionResult> delete(int categoryId)
+        public async Task<IHttpActionResult> delete(int id)
         {
             Boolean result = true;
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category category = _db.Categories.Where(p => p.id == categoryId).FirstOrDefault();
-                _db.Categories.Remove(category);
+                DAL.Category category = _db.Category.Where(p => p.id == id).FirstOrDefault();
+                _db.Category.Remove(category);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -75,32 +76,14 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("isDuplicateCode")]
-        public async Task<IHttpActionResult> isDuplicateCode(DAL.Category model)
-        {
-            Boolean result = true;
-            System.Web.HttpContext.Current.Application.Lock();
-            var category = from m in _db.Categories where m.id == model.id select m;
-            if (model.id != 0)
-            {
-                category = from m in category where m.id != model.id select m;
-            }
-
-            if (!category.Any())
-            {
-                result = false;
-            }
-            System.Web.HttpContext.Current.Application.UnLock();
-
-            return Json(new { result = result });
-        }
+  
 
         [Route("isDuplicateName")]
         public async Task<IHttpActionResult> isDuplicateName(DAL.Category model)
         {
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
-            var category = from m in _db.Categories where m.categoryName == model.categoryName select m;
+            var category = from m in _db.Category where m.categoryName == model.categoryName select m;
             if (model.id != 0)
             {
                 category = from m in category where m.id != model.id select m;
@@ -120,7 +103,7 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getCategory(int categoryId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.Category category = _db.Categories.Where(p => p.id == categoryId).FirstOrDefault();
+            DAL.Category category = _db.Category.Where(p => p.id == categoryId).FirstOrDefault();
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(category);
         }
@@ -132,20 +115,21 @@ namespace ProjectSI_API.Controllers
 
 
             //var category = from m in _db.Categories select m;
-            var category = from m in _db.Categories select
+            var category = from m in _db.Category select
                 new
                 {
+                    id = m.id,
                     categoryName = m.categoryName,
-                    //status = m.status
+                    status = m.status
                 };
             if (model.categoryName != null)
             {
                 category = from m in category where m.categoryName.Contains(model.categoryName) select m;
             }
-            //if (model.status != 0)
-            //{
-            //    category = from m in category where m.status == model.status select m;
-            //}
+            if (model.status != 0)
+            {
+                category = from m in category where m.status == model.status select m;
+            }
 
             category = from m in category orderby m.categoryName select m;
 
