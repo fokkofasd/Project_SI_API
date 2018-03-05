@@ -205,11 +205,14 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var user = from m in _db.Users select 
+            var user = from m in _db.Users
+                       join aspUser in _db.AspNetUsers on m.userID equals aspUser.Id
+                       select 
                 new
                 {
                     firstname = m.firstname,
                     lastname = m.lastname,
+                    email = aspUser.Email,
                     status = m.status,
                     userID = m.userID,
                     userTypeID = m.userTypeID
