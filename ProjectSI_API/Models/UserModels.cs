@@ -22,9 +22,9 @@ namespace ProjectSI_API.Models
 
         public string nickname { get; set; }
 
-        [Required(ErrorMessage = "Please enter how many Stream Entries are displayed per page.")]
-        [Display(Name = "role")]
-        public int role { get; set; }
+        [Required(ErrorMessage = "กรุณาเลือกบทบาทผู้ใช้งาน")]
+        [Display(Name = "userTypeID")]
+        public Nullable<int> userTypeID { get; set; }
 
         public string commanderID { get; set; }
 

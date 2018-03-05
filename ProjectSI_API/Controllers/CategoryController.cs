@@ -16,13 +16,20 @@ namespace ProjectSI_API.Controllers
         SIDBEntities _db = new SIDBEntities();
 
         [Route("create")]
-        public async Task<IHttpActionResult> create(DAL.Category model)
+        public async Task<IHttpActionResult> create(Models.CategoryModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
+            }
             Boolean result = true;
             try
             {
+                Category category = new Category();
+                category.categoryName = model.categoryName;
+                category.status = model.status;
                 System.Web.HttpContext.Current.Application.Lock();
-                _db.Category.Add(model);
+                _db.Category.Add(category);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -35,15 +42,19 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("update")]
-        public async Task<IHttpActionResult> update(DAL.Category model)
+        public async Task<IHttpActionResult> update(Models.CategoryModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
+            }
             Boolean result = true;
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category category = _db.Category.Where(p => p.id == model.id).FirstOrDefault();
-                category.categoryName = model.categoryName;
-                category.status = model.status;
+                DAL.Category nowCategory = _db.Category.Where(p => p.id == model.id).FirstOrDefault();
+                nowCategory.categoryName = model.categoryName;
+                nowCategory.status = model.status;
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }

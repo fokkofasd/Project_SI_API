@@ -16,7 +16,7 @@ namespace ProjectSI_API.Controllers
         SIDBEntities _db = new SIDBEntities();
 
         [Route("create")]
-        public async Task<IHttpActionResult> create(DAL.Circle model)
+        public async Task<IHttpActionResult> create(Models.CircleModel model)
         {
                 if (!ModelState.IsValid)
                 {
@@ -25,9 +25,14 @@ namespace ProjectSI_API.Controllers
                 Boolean result = true;
                 try
                 {
+                         Circle circle = new Circle();
+                        circle.circleName = model.circleName;
+                        circle.circleTime = model.circleTime;
+                        circle.status = model.status;
 
-                     System.Web.HttpContext.Current.Application.Lock();
-                     _db.Circle.Add(model);
+
+                System.Web.HttpContext.Current.Application.Lock();
+                     _db.Circle.Add(circle);
                     _db.SaveChanges();
                     System.Web.HttpContext.Current.Application.UnLock();
                 }
@@ -40,16 +45,20 @@ namespace ProjectSI_API.Controllers
             }
 
         [Route("update")]
-        public async Task<IHttpActionResult> update(DAL.Circle model)
+        public async Task<IHttpActionResult> update(Models.CircleModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
+            }
             Boolean result = true;
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                    DAL.Circle circle = _db.Circle.Where(p => p.id == model.id).FirstOrDefault();
-                    circle.circleName = model.circleName;
-                    circle.circleTime = model.circleTime;
-                    circle.status = model.status;
+                    DAL.Circle nowCircle = _db.Circle.Where(p => p.id == model.id).FirstOrDefault();
+                    nowCircle.circleName = model.circleName;
+                    nowCircle.circleTime = model.circleTime;
+                    nowCircle.status = model.status;
                     _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }

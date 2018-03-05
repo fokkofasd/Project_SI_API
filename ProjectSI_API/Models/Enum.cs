@@ -20,4 +20,13 @@ namespace ProjectSI_API.Models
         [Display(Name = "questions")]
         public string value { get; set; }
     }
+
+    public class Checklist
+    {
+        public string id { get; set; }
+
+        [Required(ErrorMessage = "กรุณากรอกรายการตรวจสอบ")]
+        [Display(Name = "checklistName")]
+        public string value { get; set; }
+    }
 }
