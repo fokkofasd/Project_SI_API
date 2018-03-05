@@ -16,19 +16,47 @@ namespace ProjectSI_API.Controllers
         SIDBEntities _db = new SIDBEntities();
 
         [Route("create")]
-        public async Task<IHttpActionResult> create(DAL.Goal model)
+        public async Task<IHttpActionResult> create(Models.GoalChecklistModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
+            }
             Boolean result = true;
             try
             {
+                Goal goal = new Goal();
+                goal.goalName = model.goalName;
+                goal.description = model.description;
+                goal.startDate = model.startDate;
+                goal.endDate = model.endDate;
+                goal.categoryID = model.categoryID;
+                goal.circleID = model.circleID;
+                goal.userID = model.userID;
+
                 System.Web.HttpContext.Current.Application.Lock();
-                _db.Goals.Add(model);
-                _db.SaveChanges();
+                _db.Goal.Add(goal);
+                int isSave = _db.SaveChanges();
+                if (isSave == 1)
+                {
+                    Goal g = _db.Goal.Where(p => p.goalName == model.goalName).FirstOrDefault();
+                    List<Checklist> cList = new List<Checklist>();
+                    foreach (var c in model.checklistName)
+                    {
+                        Checklist checklist = new Checklist();
+                        checklist.checklistName = c.value;
+                        checklist.goalID = g.id;
+                        cList.Add(checklist);
+                    }
+                    _db.Checklist.AddRange(cList);
+                    _db.SaveChanges();
+
+                }
                 System.Web.HttpContext.Current.Application.UnLock();
             }
             catch (Exception e)
             {
-                result = false;
+                return Json(e.Message);
             }
 
             return Json(new { result = result });
@@ -41,11 +69,11 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Goal goal = _db.Goals.Where(p => p.id == model.id).FirstOrDefault();
+                DAL.Goal goal = _db.Goal.Where(p => p.id == model.id).FirstOrDefault();
                 goal.goalName = model.goalName;
                 goal.description = model.description;
                 goal.startDate = model.startDate;
-                goal.endDate = model.endDate;
+               // goal.endDate = model.endDate;
                 goal.categoryID = model.categoryID;
                 goal.circleID = model.circleID;
                 _db.SaveChanges();
@@ -67,8 +95,8 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Goal goal = _db.Goals.Where(p => p.id == goalId).FirstOrDefault();
-                _db.Goals.Remove(goal);
+                DAL.Goal goal = _db.Goal.Where(p => p.id == goalId).FirstOrDefault();
+                _db.Goal.Remove(goal);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -87,13 +115,13 @@ namespace ProjectSI_API.Controllers
 
 
             //var category = from m in _db.Categories select m;
-            var goal = from g in _db.Goals
+            var goal = from g in _db.Goal
                        select new
                 {
                     goalName = g.goalName,
                     description = g.description,
                     startDate = g.startDate,
-                    endDate = g.endDate,
+                    //endDate = g.endDate,
                     circleID = g.circleID,
                     categoryID = g.categoryID,
                     categoryName = g.Category.categoryName,
@@ -120,14 +148,14 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getGoal(string userId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            var goal = from g in _db.Goals
+            var goal = from g in _db.Goal
                        where g.userID.Equals(userId)
                        select new
                        {
                            goalName = g.goalName,
                            description = g.description,
                            startDate = g.startDate,
-                           endDate = g.endDate,
+                         // endDate = g.endDate,
                            circleID = g.circleID,
                            categoryID = g.categoryID,
                            categoryName = g.Category.categoryName,
@@ -143,14 +171,14 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
             //DAL.Goal goal = _db.Goals.Where(p => p.userID == userId).FirstOrDefault();
-            var goal = from g in _db.Goals
+            var goal = from g in _db.Goal
                        where g.userID.Equals(userId)
                        select new
                        {
                            goalName = g.goalName,
                            description = g.description,
                            startDate = g.startDate,
-                           endDate = g.endDate,
+                          // endDate = g.endDate,
                            circleID = g.circleID,
                            categoryID = g.categoryID,
                            categoryName = g.Category.categoryName,
@@ -168,14 +196,14 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getGoalByCircleName(string userId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            var goal = from g in _db.Goals
+            var goal = from g in _db.Goal
                        where g.userID.Equals(userId)
                        select new
                        {
                            goalName = g.goalName,
                            description = g.description,
                            startDate = g.startDate,
-                           endDate = g.endDate,
+                           //endDate = g.endDate,
                            circleID = g.circleID,
                            categoryID = g.categoryID,
                            categoryName = g.Category.categoryName,

@@ -11,30 +11,32 @@ namespace ProjectSI_API.Models
 
         public int id { get; set; }
 
-        [Required(ErrorMessage = "กรุณากรอกชื่อแบบประเมิน")]
+        [Required(ErrorMessage = "กรุณากรอกชื่อเป้าหมาย")]
         [Display(Name = "goalName")]
-        public string evaluationName { get; set; }
+        public string goalName { get; set; }
 
-
+        [Required(ErrorMessage = "กรุณากรอกคำอธิบาย")]
         [Display(Name = "description")]
         public string description { get; set; }
 
 
         [Display(Name = "startDate")]
-        public string startDate { get; set; }
+        public DateTime startDate { get; set; }
 
-        //[Display(Name = "endDate")]
-        //public string endDate { get; set; }
+        [Display(Name = "endDate")]
+        public DateTime endDate { get; set; }
 
 
-        [Required(ErrorMessage = "กรุณาเลือกหมวดหมู่ของเป้าหมาย")]
+       // [Required(ErrorMessage = "กรุณาเลือกหมวดหมู่ของเป้าหมาย")]
         [Display(Name = "categoryID")]
-        public int circleTime { get; set; }
+        public int categoryID { get; set; }
 
-        [Required(ErrorMessage = "กรุณาเลือกรอบของเป้าหมาย")]
+       // [Required(ErrorMessage = "กรุณาเลือกรอบของเป้าหมาย")]
         [Display(Name = "circleID")]
         public int circleID { get; set; }
 
+        [Display(Name = "userID")]
+        public string userID { get; set; }
 
         public List<Checklist> checklistName { get; set; }
     }
