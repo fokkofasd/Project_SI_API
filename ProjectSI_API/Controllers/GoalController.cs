@@ -28,7 +28,7 @@ namespace ProjectSI_API.Controllers
                 Goal goal = new Goal();
                 goal.goalName = model.goalName;
                 goal.description = model.description;
-                goal.startDate = model.startDate;
+                goal.startDate = DateTime.Parse(model.startDate);
                 goal.endDate = model.endDate;
                 goal.categoryID = model.categoryID;
                 goal.circleID = model.circleID;
@@ -41,7 +41,7 @@ namespace ProjectSI_API.Controllers
                 {
                     Goal g = _db.Goal.Where(p => p.goalName == model.goalName).FirstOrDefault();
                     List<Checklist> cList = new List<Checklist>();
-                    foreach (var c in model.checklistName)
+                    foreach (var c in model.checklists)
                     {
                         Checklist checklist = new Checklist();
                         checklist.checklistName = c.value;
@@ -113,34 +113,26 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-
-            //var category = from m in _db.Categories select m;
-            var goal = from g in _db.Goal
-                       select new
-                {
-                    goalName = g.goalName,
-                    description = g.description,
-                    startDate = g.startDate,
-                    //endDate = g.endDate,
-                    circleID = g.circleID,
-                    categoryID = g.categoryID,
-                    categoryName = g.Category.categoryName,
-                    circleName = g.Circle.circleName,
-                    userID = g.userID
-                };
+            var Goal = from m in _db.Goal
+                             select
+                new
+                     {
+                        goalName = m.goalName,
+                        description = m.description,
+                        categoryID = m.categoryID,
+                        circleID = m.circleID,
+                        startDate = m.startDate,
+                        endDate = m.endDate
+                    };
             if (model.goalName != null)
             {
-                goal = from g in goal where g.goalName.Contains(model.goalName) && g.userID.Equals(model.userID) select g;
+                Goal = from m in Goal where m.goalName.Contains(model.goalName) select m;
             }
-            //if (model.status != 0)
-            //{
-            //    category = from m in category where m.status == model.status select m;
-            //}
 
-            goal = from m in goal orderby m.goalName select m;
+            Goal = from m in Goal orderby m.goalName select m;
 
             System.Web.HttpContext.Current.Application.UnLock();
-            return Json(goal);
+            return Json(Goal);
         }
 
         [Route("getgoal/{userId}")]
@@ -155,7 +147,7 @@ namespace ProjectSI_API.Controllers
                            goalName = g.goalName,
                            description = g.description,
                            startDate = g.startDate,
-                         // endDate = g.endDate,
+                           endDate = g.endDate,
                            circleID = g.circleID,
                            categoryID = g.categoryID,
                            categoryName = g.Category.categoryName,
@@ -178,7 +170,7 @@ namespace ProjectSI_API.Controllers
                            goalName = g.goalName,
                            description = g.description,
                            startDate = g.startDate,
-                          // endDate = g.endDate,
+                           endDate = g.endDate,
                            circleID = g.circleID,
                            categoryID = g.categoryID,
                            categoryName = g.Category.categoryName,
@@ -203,7 +195,7 @@ namespace ProjectSI_API.Controllers
                            goalName = g.goalName,
                            description = g.description,
                            startDate = g.startDate,
-                           //endDate = g.endDate,
+                           endDate = g.endDate,
                            circleID = g.circleID,
                            categoryID = g.categoryID,
                            categoryName = g.Category.categoryName,

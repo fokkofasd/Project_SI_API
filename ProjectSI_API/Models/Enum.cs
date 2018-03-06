@@ -26,7 +26,7 @@ namespace ProjectSI_API.Models
         public string id { get; set; }
 
         [Required(ErrorMessage = "กรุณากรอกรายการตรวจสอบ")]
-        [Display(Name = "checklistName")]
+        [Display(Name = "checklists")]
         public string value { get; set; }
     }
 }
