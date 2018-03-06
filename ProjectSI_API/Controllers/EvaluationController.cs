@@ -58,7 +58,7 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("update")]
-        public async Task<IHttpActionResult> update(DAL.Evaluation model)
+        public async Task<IHttpActionResult> update(Models.EvaluationQuestionModel model)
         {
             Boolean result = true;
             try
@@ -67,7 +67,22 @@ namespace ProjectSI_API.Controllers
                 DAL.Evaluation evaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
                 evaluation.evaluationName = model.evaluationName;
                 evaluation.description = model.description;
-                _db.SaveChanges();
+                int isSave = _db.SaveChanges();
+                if (isSave == 1)
+                {
+                    Evaluation e = _db.Evaluations.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
+                    List<Question> qList = new List<Question>();
+                    foreach (var q in model.questions)
+                    {
+                        Question quest = new Question();
+                        quest.question1 = q.value;
+                        quest.evaluationID = e.id;
+                        qList.Add(quest);
+                    }
+                    _db.Questions.AddRange(qList);
+                    _db.SaveChanges();
+
+                }
                 System.Web.HttpContext.Current.Application.UnLock();
             }
             catch (Exception e)
@@ -86,6 +101,13 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
+                var questions = from q in _db.Questions where q.evaluationID == evaluationId select q;
+                foreach (var question in questions)
+                {
+                    DAL.Question ques = _db.Questions.Where(p => p.id == question.id).FirstOrDefault();
+                    _db.Questions.Remove(ques);
+                }
+
                 DAL.Evaluation evaluation = _db.Evaluations.Where(p => p.id == evaluationId).FirstOrDefault();
                 _db.Evaluations.Remove(evaluation);
                 _db.SaveChanges();
