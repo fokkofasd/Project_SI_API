@@ -1,4 +1,5 @@
-﻿using ProjectSI_API.DAL;
+﻿using Microsoft.AspNet.Identity;
+using ProjectSI_API.DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,16 +24,17 @@ namespace ProjectSI_API.Controllers
                 return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
             }
             Boolean result = true;
+            string[] date = model.startDate.Split('/');
             try
             {
                 Goal goal = new Goal();
                 goal.goalName = model.goalName;
                 goal.description = model.description;
-                goal.startDate = DateTime.Parse(model.startDate);
+                goal.startDate = DateTime.Parse(date[1] + "/" + date[0] + "/" + ( Convert.ToInt32(date[2])+543));
                 goal.endDate = model.endDate;
                 goal.categoryID = model.categoryID;
                 goal.circleID = model.circleID;
-                goal.userID = model.userID;
+                goal.userID = User.Identity.GetUserId();
 
                 System.Web.HttpContext.Current.Application.Lock();
                 _db.Goal.Add(goal);
