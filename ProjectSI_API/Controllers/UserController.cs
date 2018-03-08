@@ -94,14 +94,14 @@ namespace ProjectSI_API.Controllers
             gen.personalID = model.personalID;
             gen.firstname = model.firstname;
             gen.lastname = model.lastname;
-            gen.userTypeID = model.role;
-            //gen.commanderID = model.commanderID;
+            gen.userTypeID = (int)model.userTypeID;
+            gen.commanderID = model.commanderID;
             gen.status = Models.Enum.STATUS_ACTIVE;
 
             _db.Users.Add(gen);
             _db.SaveChanges();
 
-            return Ok();
+            return Json(new { result = result });
         }
 
         [Route("update")]
@@ -113,11 +113,12 @@ namespace ProjectSI_API.Controllers
                 System.Web.HttpContext.Current.Application.Lock();
                 DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
                 //DAL.User gen = new DAL.User();
+                nowUser.personalID = model.personalID;
                 nowUser.firstname = model.firstname;
                 nowUser.lastname = model.lastname;
-                nowUser.userTypeID = (int)model.role;
+                nowUser.userTypeID = (int)model.userTypeID;
                 nowUser.status = (int)model.status;
-                //nowUser.commanderID = model.commanderID;
+                nowUser.commanderID = model.commanderID;
                 nowUser.personalID = model.personalID;
 
                 _db.SaveChanges();
@@ -215,7 +216,7 @@ namespace ProjectSI_API.Controllers
                     email = aspUser.Email,
                     status = m.status,
                     userID = m.userID,
-                    userTypeID = m.userTypeID
+                    userTypeID = m.UserType.UserTypeName
                 };
             if (model.firstname != null)
             {
