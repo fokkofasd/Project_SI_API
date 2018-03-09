@@ -89,15 +89,22 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("delete/{goalId}")]
+        [Route("delete/{id}")]
         [HttpGet]
-        public async Task<IHttpActionResult> delete(int goalId)
+        public async Task<IHttpActionResult> delete(int id)
         {
             Boolean result = true;
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Goal goal = _db.Goal.Where(p => p.id == goalId).FirstOrDefault();
+                var checklists = from c in _db.Checklist where c.goalID == id select c;
+                foreach (var checklist in checklists)
+                {
+                    DAL.Checklist check = _db.Checklist.Where(p => p.id == checklist.id).FirstOrDefault();
+                    _db.Checklist.Remove(check);
+                }
+
+                DAL.Goal goal = _db.Goal.Where(p => p.id == id).FirstOrDefault();
                 _db.Goal.Remove(goal);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
