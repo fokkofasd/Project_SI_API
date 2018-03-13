@@ -38,6 +38,8 @@ namespace ProjectSI_API.Models
         [Display(Name = "userID")]
         public string userID { get; set; }
 
+        public List<DAL.User> users { get; set; }
+
         public List<Checklist> checklists { get; set; }
     }
   }
