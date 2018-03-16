@@ -1,4 +1,5 @@
-﻿using ProjectSI_API.DAL;
+﻿using Microsoft.AspNet.Identity;
+using ProjectSI_API.DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Web.Http;
 namespace ProjectSI_API.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/Checklist")]
+    [RoutePrefix("api/checklist")]
     public class ChecklistController : ApiController
     {
         SIDBEntities _db = new SIDBEntities();
@@ -81,21 +82,36 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("getchecklist/{goalId}")]
+        [Route("getchecklists/{goalId}")]
         [HttpGet]
-        public async Task<IHttpActionResult> getchecklist(int goalId)
+        public async Task<IHttpActionResult> getchecklists(int goalId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            var checklist = from cl in _db.Checklists
-                       where cl.goalID.Equals(goalId)
-                       select new
-                       {
-                           id = cl.id,
-                           checklistName = cl.checklistName,
-                           goalID = cl.goalID
-                       };
+            string userId = User.Identity.GetUserId();
+            var checklists = from cl in _db.Checklists
+                             join clp in _db.ChecklistProgresses on cl.id equals clp.checklistID
+                             join gh in _db.GoalHandlers on clp.goalHandlerID equals gh.id
+                             where cl.goalID.Equals(goalId) && gh.userID.Equals(userId)
+                             select new
+                             {
+                                 id = cl.id,
+                                 checklistName = cl.checklistName,
+                                 checklistProgress = clp.checklistProgress1,
+                                 goalID = cl.goalID,
+                                 goalHandlerID = gh.id
+                             };
+            //var checklists = from cl in _db.Checklists
+            //                 join g in _db.Goals on cl.goalID equals g.id
+            //                 join gh in _db.GoalHandlers on g.id equals gh.goalID
+            //           where g.id.Equals(goalId) && gh.userID.Equals(userId)
+            //           select new
+            //           {
+            //               id = cl.id,
+            //               checklistName = cl.checklistName,
+            //               goalID = cl.goalID
+            //           };
             System.Web.HttpContext.Current.Application.UnLock();
-            return Json(checklist);
+            return Json(checklists);
         }
     }
 }

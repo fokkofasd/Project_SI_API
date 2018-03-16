@@ -1,4 +1,5 @@
-﻿using ProjectSI_API.DAL;
+﻿using Microsoft.AspNet.Identity;
+using ProjectSI_API.DAL;
 using ProjectSI_API.Models;
 using System;
 using System.Collections.Generic;
@@ -61,24 +62,24 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("getchecklistprogress")]
-        public async Task<IHttpActionResult> getchecklistProgress(ChecklistProgressModel model)
+        [Route("getchecklistprogresses/{goalId}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getchecklistProgress(int goalId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            var checklistProgress = from clp in _db.ChecklistProgresses
-                                    where clp.Checklist.goalID.Equals(model.goalID) && 
-                                    clp.userID.Equals(model.userID)
+            string userId = User.Identity.GetUserId();
+            var checklistProgresses = from clp in _db.ChecklistProgresses
+                                    where clp.Checklist.goalID.Equals(goalId) && 
+                                    clp.GoalHandler.userID.Equals(userId)
                                     select
                          new
                          {
-                             clp.id,
-                             clp.checklistProgress1,
-                             clp.Checklist.checklistName,
-                             clp.userID,
-                             clp.checklistID
+                             id = clp.id,
+                             checklistProgress1 = clp.checklistProgress1,
+                             checklistID = clp.checklistID
                          };
             System.Web.HttpContext.Current.Application.UnLock();
-            return Json(checklistProgress);
+            return Json(checklistProgresses);
         }
     }
 }

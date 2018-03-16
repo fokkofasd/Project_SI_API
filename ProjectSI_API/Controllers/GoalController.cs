@@ -19,10 +19,10 @@ namespace ProjectSI_API.Controllers
         [Route("create")]
         public async Task<IHttpActionResult> create(Models.GoalChecklistModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
+            //}
             Boolean result = true;
             string[] date = model.startDate.Split('/');
             try
@@ -30,7 +30,7 @@ namespace ProjectSI_API.Controllers
                 Goal goal = new Goal();
                 goal.goalName = model.goalName;
                 goal.description = model.description;
-                goal.startDate = DateTime.Parse(date[1] + "/" + date[0] + "/" + ( Convert.ToInt32(date[2])+543));
+                //goal.startDate = DateTime.Parse(date[1] + "/" + date[0] + "/" + ( Convert.ToInt32(date[2])+543));
                 goal.endDate = model.endDate;
                 goal.categoryID = model.categoryID;
                 goal.circleID = model.circleID;
@@ -55,16 +55,42 @@ namespace ProjectSI_API.Controllers
                     _db.SaveChanges();
 
                     List<GoalHandler> ghList = new List<GoalHandler>();
-                    foreach (var u in model.users)
+
+
+                    if (model.users != null)
+                    {
+                        foreach (var u in model.users)
+                        {
+                            GoalHandler gh = new GoalHandler();
+                            gh.userID = u.userID;
+                            gh.goalID = g.id;
+                            _db.GoalHandlers.Add(gh);
+                            _db.SaveChanges();
+
+                            var c = from cl in _db.Checklists where cl.goalID.Equals(g.id) select cl;
+                            List<ChecklistProgress> clpList = new List<ChecklistProgress>();
+                            foreach (var clp in c)
+                            {
+                                ChecklistProgress checklistProgress = new ChecklistProgress();
+                                checklistProgress.checklistProgress1 = 1;
+                                checklistProgress.time = DateTime.Now;
+                                checklistProgress.checklistID = clp.id;
+                                checklistProgress.goalHandlerID = gh.id;
+                                clpList.Add(checklistProgress);
+                            }
+                            _db.ChecklistProgresses.AddRange(clpList);
+                        }
+                    }
+                    else
                     {
                         GoalHandler gh = new GoalHandler();
-                        gh.userID = u.userID;
+                        gh.userID = User.Identity.GetUserId();
                         gh.goalID = g.id;
                         _db.GoalHandlers.Add(gh);
                         _db.SaveChanges();
 
                         var c = from cl in _db.Checklists where cl.goalID.Equals(g.id) select cl;
-                        List < ChecklistProgress > clpList = new List<ChecklistProgress>();
+                        List<ChecklistProgress> clpList = new List<ChecklistProgress>();
                         foreach (var clp in c)
                         {
                             ChecklistProgress checklistProgress = new ChecklistProgress();
@@ -118,7 +144,7 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("delete/{goalId}")]
+        [Route("delete/{goalid}")]
         [HttpGet]
         public async Task<IHttpActionResult> delete(int goalId)
         {
@@ -126,6 +152,7 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
+
                 var checklists = from cl in _db.Checklists where cl.goalID.Equals(goalId) select cl;
                 var checkused = 0;
                 foreach (var checklist in checklists)
@@ -167,6 +194,7 @@ namespace ProjectSI_API.Controllers
                 {
                     result = false;
                 }
+                
                 System.Web.HttpContext.Current.Application.UnLock();
             }
             catch (Exception e)
@@ -186,6 +214,7 @@ namespace ProjectSI_API.Controllers
                        select
                 new
                      {
+                        id = m.id,
                         goalName = m.goalName,
                         description = m.description,
                         categoryID = m.categoryID,
@@ -204,37 +233,16 @@ namespace ProjectSI_API.Controllers
             return Json(Goal);
         }
 
-        //[Route("getgoal/{goalId}")]
-        //[HttpGet]
-        //public async Task<IHttpActionResult> getGoal(string goalId)
-        //{
-        //    System.Web.HttpContext.Current.Application.Lock();
-        //    var goal = from g in _db.Goals
-        //               where g.id.Equals(goalId)
-        //               select new
-        //               {
-        //                   goalName = g.goalName,
-        //                   description = g.description,
-        //                   startDate = g.startDate,
-        //                   endDate = g.endDate,
-        //                   circleID = g.circleID,
-        //                   categoryID = g.categoryID,
-        //                   categoryName = g.Category.categoryName,
-        //                   circleName = g.Circle.circleName
-        //               };
-        //    System.Web.HttpContext.Current.Application.UnLock();
-        //    return Json(goal);
-        //}
-
-        [Route("getgoal/{userId}")]
+        [Route("getgoal/{goalId}")]
         [HttpGet]
-        public async Task<IHttpActionResult> getGoalDetail(string userId)
+        public async Task<IHttpActionResult> getGoal(int goalId)
         {
             System.Web.HttpContext.Current.Application.Lock();
             var goal = from g in _db.Goals
-                       where g.userID.Equals(userId)
+                       where g.id.Equals(goalId)
                        select new
                        {
+                           id = g.id,
                            goalName = g.goalName,
                            description = g.description,
                            startDate = g.startDate,
