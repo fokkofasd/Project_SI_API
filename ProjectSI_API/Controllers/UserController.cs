@@ -260,5 +260,23 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(usersinCM);
         }
+
+        [Route("getuserCommander")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getuserCommander()
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+            var userCM = from u in _db.Users
+                            where u.userID.Equals(2) || u.userID.Equals(3)
+                         select new
+                            {
+                                firstname = u.firstname,
+                                lastname = u.lastname,
+                                userID = u.userID,
+                                userTypeID = u.UserType.UserTypeName
+                            };
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(userCM);
+        }
     }
 }

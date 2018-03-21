@@ -67,22 +67,13 @@ namespace ProjectSI_API.Controllers
                 DAL.Evaluation evaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
                 evaluation.evaluationName = model.evaluationName;
                 evaluation.description = model.description;
-                int isSave = _db.SaveChanges();
-                if (isSave == 1)
-                {
-                    Evaluation e = _db.Evaluations.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
-                    List<Question> qList = new List<Question>();
-                    foreach (var q in model.questions)
-                    {
-                        Question quest = new Question();
-                        quest.question1 = q.value;
-                        quest.evaluationID = e.id;
-                        qList.Add(quest);
-                    }
-                    _db.Questions.AddRange(qList);
-                    _db.SaveChanges();
 
+                foreach (var question in model.questions)
+                {
+                    Question e = _db.Questions.Where(p => p.id == question.id).FirstOrDefault();
+                    e.question1 = question.value;
                 }
+                _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
             catch (Exception e)
@@ -147,6 +138,21 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
             DAL.Evaluation evaluation = _db.Evaluations.Where(p => p.id == evaluationId).FirstOrDefault();
+            //EvaluationQuestionModel model = null;
+            //model.id = evaluation.id;
+            //model.evaluationName = evaluation.evaluationName;
+            //model.description = evaluation.description;
+            //var questions = from q in _db.Questions where q.evaluationID == evaluationId select q;
+            //List<DAL.Question> qList = new List<DAL.Question>();
+            //foreach (var q in questions)
+            //{
+            //    DAL.Question quest = new DAL.Question();
+            //    quest.id = q.id;
+            //    quest.question1 = q.question1;
+            //    quest.evaluationID = q.evaluationID;
+            //    qList.Add(quest);
+            //}
+            //model.questions = qList;
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(evaluation);
         }

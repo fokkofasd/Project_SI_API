@@ -14,7 +14,7 @@ namespace ProjectSI_API.Models
 
     public class Question
     {
-        public string id { get; set; }
+        public int id { get; set; }
 
         [Required(ErrorMessage = "กรุณากรอกคำถาม")]
         [Display(Name = "questions")]

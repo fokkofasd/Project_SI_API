@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjectSI_API.DAL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -20,5 +21,6 @@ namespace ProjectSI_API.Models
         public string description { get; set; }
 
         public List<Question> questions { get; set; }
+        public List<Choice> choices { get; set; }
     }
 }

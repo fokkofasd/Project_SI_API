@@ -32,5 +32,35 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(type);
         }
+
+        [Route("search")]
+        public async Task<IHttpActionResult> search(DAL.UserType model)
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+
+
+            //var category = from m in _db.Categories select m;
+            var UserTypes = from ut in _db.UserTypes
+                            select
+                            new
+                            {
+                                UserTypeId = ut.UserTypeId,
+                                UserTypeName = ut.UserTypeName,
+                                status = ut.status
+                            };
+            if (model.UserTypeName != null)
+            {
+                UserTypes = from ut in UserTypes where ut.UserTypeName.Contains(model.UserTypeName) select ut;
+            }
+            if (model.status != 0)
+            {
+                UserTypes = from ut in UserTypes where ut.status == model.status select ut;
+            }
+
+            UserTypes = from ut in UserTypes orderby ut.UserTypeName select ut;
+
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(UserTypes);
+        }
     }
 }
