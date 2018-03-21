@@ -267,13 +267,13 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
             var userCM = from u in _db.Users
-                            where u.userID.Equals(2) || u.userID.Equals(3)
+                            where u.userTypeID.Equals(2) || u.userTypeID.Equals(3)
                          select new
                             {
                                 firstname = u.firstname,
                                 lastname = u.lastname,
                                 userID = u.userID,
-                                userTypeID = u.UserType.UserTypeName
+                                UserTypeName = u.UserType.UserTypeName
                             };
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(userCM);
