@@ -237,5 +237,28 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(user);
         }
+
+        [Route("getuserByCommanderId")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getuserByCommanderId()
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+            var cmID = User.Identity.GetUserId();
+            var usersinCM = from u in _db.Users
+                       join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
+                       where u.commanderID.Equals(cmID)
+                       select new
+                       {
+                           firstname = u.firstname,
+                           lastname = u.lastname,
+                           email = aspUser.Email,
+                           status = u.status,
+                           userID = u.userID,
+                           commanderID = u.commanderID,
+                           userTypeID = u.UserType.UserTypeName
+                       };
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(usersinCM);
+        }
     }
 }
