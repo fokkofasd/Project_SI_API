@@ -96,7 +96,8 @@ namespace ProjectSI_API.Controllers
                              {
                                  id = cl.id,
                                  checklistName = cl.checklistName,
-                                 checklistProgress = clp.checklistProgress1,
+                                 clpId = clp.id,
+                                 checklistProgress1 = clp.checklistProgress1,
                                  goalID = cl.goalID,
                                  goalHandlerID = gh.id
                              };

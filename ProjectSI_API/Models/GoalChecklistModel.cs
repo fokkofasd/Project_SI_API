@@ -21,7 +21,7 @@ namespace ProjectSI_API.Models
 
         [Required(ErrorMessage = "กรุณากรอกวันเริ่มต้นของเป้าหมาย")]
         [RegularExpression(@"^([0]\d|[1][0-2])\/([0-2]\d|[3][0-1])\/([2][01]|[1][6-9])\d{2}(\s([0-1]\d|[2][0-3])(\:[0-5]\d){1,2})?$", ErrorMessage = "กรุณกรอกวันตามรูปแบบ ")]
-        public string startDate { get; set; }
+        public DateTime startDate { get; set; }
 
         public DateTime endDate { get; set; }
 
@@ -38,7 +38,7 @@ namespace ProjectSI_API.Models
         [Display(Name = "userID")]
         public string userID { get; set; }
 
-        public List<DAL.User> users { get; set; }
+        public String[] users { get; set; }
 
         public List<Checklist> checklists { get; set; }
     }

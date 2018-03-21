@@ -39,28 +39,28 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("update")]
-        public async Task<IHttpActionResult> update(List<ChecklistProgress> model)
-        {
-            Boolean result = true;
-            try
-            {
-                System.Web.HttpContext.Current.Application.Lock();
-                foreach (var checklistProgressModel in model)
-                {
-                    DAL.ChecklistProgress checklistprogres = _db.ChecklistProgresses.Where(p => p.id == checklistProgressModel.id).FirstOrDefault();
-                    checklistprogres.checklistProgress1 = checklistProgressModel.checklistProgress1;
-                    _db.SaveChanges();
-                }
-                System.Web.HttpContext.Current.Application.UnLock();
-            }
-            catch (Exception e)
-            {
-                result = false;
-            }
+        //[Route("update")]
+        //public async Task<IHttpActionResult> update(List<ChecklistProgress> model)
+        //{
+        //    Boolean result = true;
+        //    try
+        //    {
+        //        System.Web.HttpContext.Current.Application.Lock();
+        //        foreach (var checklistProgressModel in model)
+        //        {
+        //            DAL.ChecklistProgress checklistprogres = _db.ChecklistProgresses.Where(p => p.id == checklistProgressModel.id).FirstOrDefault();
+        //            checklistprogres.checklistProgress1 = checklistProgressModel.checklistProgress1;
+        //            _db.SaveChanges();
+        //        }
+        //        System.Web.HttpContext.Current.Application.UnLock();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        result = false;
+        //    }
 
-            return Json(new { result = result });
-        }
+        //    return Json(new { result = result });
+        //}
 
         [Route("getchecklistprogresses/{goalId}")]
         [HttpGet]
@@ -80,6 +80,32 @@ namespace ProjectSI_API.Controllers
                          };
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(checklistProgresses);
+        }
+
+        [Route("saveProgress")]
+        public async Task<IHttpActionResult> saveProgress(List<ChecklistProgress> model)
+        {
+            Boolean result = true;
+            try
+            {
+                System.Web.HttpContext.Current.Application.Lock();
+
+                foreach (var checklistProgressModel in model)
+                {
+                    DAL.ChecklistProgress checklistprogress = _db.ChecklistProgresses.Where(p => p.id == checklistProgressModel.id).FirstOrDefault();
+                    checklistprogress.checklistProgress1 = checklistProgressModel.checklistProgress1;
+                    checklistprogress.time = DateTime.Now;
+                    _db.SaveChanges();
+                }
+
+                System.Web.HttpContext.Current.Application.UnLock();
+            }
+            catch (Exception e)
+            {
+                result = false;
+            }
+
+            return Json(new { result = result });
         }
     }
 }

@@ -24,7 +24,7 @@ namespace ProjectSI_API.Controllers
             //    return Json(new { error = true, message = Models.ErrorMessage.getErrorMessage(ModelState) });
             //}
             Boolean result = true;
-            string[] date = model.startDate.Split('/');
+            //string[] date = model.startDate.Split('/');
             try
             {
                 Goal goal = new Goal();
@@ -62,7 +62,7 @@ namespace ProjectSI_API.Controllers
                         foreach (var u in model.users)
                         {
                             GoalHandler gh = new GoalHandler();
-                            gh.userID = u.userID;
+                            gh.userID = u;
                             gh.goalID = g.id;
                             _db.GoalHandlers.Add(gh);
                             _db.SaveChanges();
