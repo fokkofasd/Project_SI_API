@@ -32,7 +32,7 @@ namespace ProjectSI_API.Controllers
 
 
                 System.Web.HttpContext.Current.Application.Lock();
-                     _db.Circle.Add(circle);
+                     _db.Circles.Add(circle);
                     _db.SaveChanges();
                     System.Web.HttpContext.Current.Application.UnLock();
                 }
@@ -55,7 +55,7 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                    DAL.Circle nowCircle = _db.Circle.Where(p => p.id == model.id).FirstOrDefault();
+                    DAL.Circle nowCircle = _db.Circles.Where(p => p.id == model.id).FirstOrDefault();
                     nowCircle.circleName = model.circleName;
                     nowCircle.circleTime = model.circleTime;
                     nowCircle.status = model.status;
@@ -78,8 +78,8 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                    DAL.Circle circle = _db.Circle.Where(p => p.id == id).FirstOrDefault();
-                    _db.Circle.Remove(circle);
+                    DAL.Circle circle = _db.Circles.Where(p => p.id == id).FirstOrDefault();
+                    _db.Circles.Remove(circle);
                     _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -97,7 +97,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
-                var circle = from m in _db.Circle where m.circleName == model.circleName select m;
+                var circle = from m in _db.Circles where m.circleName == model.circleName select m;
                 if (model.id != 0)
                 {
                     circle = from m in circle where m.id != model.id select m;
@@ -117,7 +117,7 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getCircle(int circleId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.Circle circle = _db.Circle.Where(p => p.id == circleId).FirstOrDefault();
+            DAL.Circle circle = _db.Circles.Where(p => p.id == circleId).FirstOrDefault();
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(circle);
         }
@@ -128,7 +128,8 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-                var circle = from m in _db.Circle select
+                var circle = from m in _db.Circles
+                             select
                 new
                 {
                         id = m.id,
@@ -140,7 +141,7 @@ namespace ProjectSI_API.Controllers
                     circle = from m in circle where m.circleName.Contains(model.circleName) select m;
                 }
                  if (model.circleTime != 0) {
-                circle = from m in circle where  m.circleTime == model.circleTime select m;
+                circle = from m in circle where  m.circleTime <= model.circleTime select m;
             }
             if (model.status != 0)
                 {

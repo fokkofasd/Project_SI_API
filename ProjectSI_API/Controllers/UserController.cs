@@ -278,5 +278,74 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(userCM);
         }
+
+        [Route("getusertabstudent")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getusertabstudent()
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+            var users = from u in _db.Users
+                         join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
+                         where u.userTypeID.Equals(1)
+                         select new
+                         {
+                             firstname = u.firstname,
+                             lastname = u.lastname,
+                             personalID = u.personalID,
+                             userID = u.userID,
+                             commanderID = u.commanderID,
+                             status = u.status,
+                             email = aspUser.Email,
+                             userTypeID = u.userTypeID
+                         };
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(users);
+        }
+
+        [Route("getusertabteacher")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getusertabteacher()
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+            var users = from u in _db.Users
+                         join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
+                         where u.userTypeID.Equals(2) || u.userTypeID.Equals(3)
+                         select new
+                         {
+                             firstname = u.firstname,
+                             lastname = u.lastname,
+                             personalID = u.personalID,
+                             userID = u.userID,
+                             commanderID = u.commanderID,
+                             status = u.status,
+                             email = aspUser.Email,
+                             userTypeID = u.userTypeID
+                         };
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(users);
+        }
+
+        [Route("getusertabadmin")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getusertabadmin()
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+            var users = from u in _db.Users
+                         join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
+                         where u.userTypeID.Equals(4)
+                         select new
+                         {
+                             firstname = u.firstname,
+                             lastname = u.lastname,
+                             personalID = u.personalID,
+                             userID = u.userID,
+                             commanderID = u.commanderID,
+                             status = u.status,
+                             email = aspUser.Email,
+                             userTypeID = u.userTypeID
+                         };
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(users);
+        }
     }
 }
