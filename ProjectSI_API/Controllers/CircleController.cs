@@ -141,7 +141,7 @@ namespace ProjectSI_API.Controllers
                 {
                     circle = from m in circle where m.status == model.status select m;
                 }
-            circle = from m in circle orderby m.circleName select m;
+            circle = from m in circle orderby m.circleTime select m;
 
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(circle);
