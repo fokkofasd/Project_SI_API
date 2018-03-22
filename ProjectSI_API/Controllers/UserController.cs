@@ -87,7 +87,7 @@ namespace ProjectSI_API.Controllers
                 return Json(GetErrorResult(result));
             }
 
-            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
             gen.personalID = model.personalID;
@@ -97,7 +97,7 @@ namespace ProjectSI_API.Controllers
             gen.commanderID = model.commanderID;
             gen.status = Models.Enum.STATUS_ACTIVE;
 
-            _db.User.Add(gen);
+            _db.Users.Add(gen);
             _db.SaveChanges();
 
             return Json(new { result = result });
@@ -115,7 +115,7 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.User nowUser = _db.User.Where(p => p.userID == model.userID).First();
+                DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
                 //DAL.User gen = new DAL.User();
                 nowUser.personalID = model.personalID;
                 nowUser.firstname = model.firstname;
@@ -146,14 +146,14 @@ namespace ProjectSI_API.Controllers
             //}
 
             Boolean result = true;
-            DAL.User nowUser = _db.User.Where(p => p.userID == userId).First();
-            DAL.AspNetUsers nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
+            DAL.User nowUser = _db.Users.Where(p => p.userID == userId).First();
+            DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
             if (nowUser != null && nowAccount != null)
             {
                 try
                 {
                     System.Web.HttpContext.Current.Application.Lock();
-                    _db.User.Remove(nowUser);
+                    _db.Users.Remove(nowUser);
                     _db.SaveChanges();
 
                     _db.AspNetUsers.Remove(nowAccount);
@@ -169,17 +169,32 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("isDuplicate")]
-        public async Task<IHttpActionResult> isDuplicate(UserModels model)
+        [Route("isDuplicatePersonalId")]
+        public async Task<IHttpActionResult> isDuplicatePersonalId(UserModels model)
         {
-            Boolean result = true;
+            Boolean result = false;
 
-            var nowUser = _db.User.Where(p => p.userID == model.userID).First();
-            if (nowUser != null)
+            var nowUser = _db.Users.Where(p => p.personalID == model.personalID).FirstOrDefault();
+            if (nowUser == null)
             {
-                return duplicate();
+                result = true;
             }
             
+            return Json(new { result = result });
+        }
+
+
+        [Route("isDuplicateEmail")]
+        public async Task<IHttpActionResult> isDuplicateEmail(UserModels model)
+        {
+            Boolean result = false;
+
+            var nowUser = _db.AspNetUsers.Where(p => p.Email == model.email).FirstOrDefault();
+            if (nowUser == null)
+            {
+                result = true;
+            }
+
             return Json(new { result = result });
         }
 
@@ -188,8 +203,8 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getUser(string userId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.User user = _db.User.Find(userId);
-            DAL.AspNetUsers aspNetUser = _db.AspNetUsers.Find(userId);
+            DAL.User user = _db.Users.Find(userId);
+            DAL.AspNetUser aspNetUser = _db.AspNetUsers.Find(userId);
             var daoUser = new
             {
                 personalID = user.personalID,
@@ -209,17 +224,11 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> search(DAL.User model)
         {
             System.Web.HttpContext.Current.Application.Lock();
-
-<<<<<<< HEAD
+            
             var user = from u in _db.Users
                        join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
                        where u.userTypeID.Equals(model.userTypeID)
                        select
-=======
-            var user = from m in _db.User
-                       join aspUser in _db.AspNetUsers on m.userID equals aspUser.Id
-                       select 
->>>>>>> c7f1cafaed2b0401f634d10bdd8b47e7f4d76580
                 new
                 {
                     firstname = u.firstname,
@@ -257,13 +266,14 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
             var cmID = User.Identity.GetUserId();
-            var usersinCM = from u in _db.User
-                       join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
+            var usersinCM = from u in _db.Users
+                            join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
                        where u.commanderID.Equals(cmID)
                        select new
                        {
                            firstname = u.firstname,
                            lastname = u.lastname,
+
                            email = aspUser.Email,
                            status = u.status,
                            userID = u.userID,
@@ -279,8 +289,8 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getuserCommander()
         {
             System.Web.HttpContext.Current.Application.Lock();
-            var userCM = from u in _db.User
-                            where u.userTypeID.Equals(2) || u.userTypeID.Equals(3)
+            var userCM = from u in _db.Users
+                         where u.userTypeID.Equals(2) || u.userTypeID.Equals(3)
                          select new
                             {
                                 firstname = u.firstname,
