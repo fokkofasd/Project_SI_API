@@ -8,7 +8,7 @@ namespace ProjectSI_API.Models
 {
     public class UserModels
     {
-        [Required(ErrorMessage = "กรุณากรอกรหัสประจำตัว")]
+        //[Required(ErrorMessage = "กรุณากรอกรหัสประจำตัว")]
         [Display(Name = "personalID")]
         public string personalID { get; set; }
 
@@ -22,9 +22,9 @@ namespace ProjectSI_API.Models
 
         public string nickname { get; set; }
 
-        [Required(ErrorMessage = "กรุณาเลือกบทบาทผู้ใช้งาน")]
-        [Display(Name = "userTypeID")]
-        public Nullable<int> userTypeID { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "กรุณาเลือกบทบาทผู้ใช้งาน")]
+        //[Display(Name = "userTypeID")]
+        public int userTypeID { get; set; }
 
         public string commanderID { get; set; }
 
