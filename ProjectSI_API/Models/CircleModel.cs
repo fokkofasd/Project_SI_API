@@ -16,9 +16,9 @@ namespace ProjectSI_API.Models
         [Display(Name = "circleName")]
         public string circleName { get; set; }
 
-
         [Required(ErrorMessage = "กรุณากรอกระยะเวลา (เป็นจำนวนวัน)")]
-        [Display(Name = "circleTime")]
+        [Range(1, int.MaxValue, ErrorMessage = "กรุณากรอกระยะเวลา (เป็นจำนวนวัน)")]
+        //[Display(Name = "circleTime")]
         public int circleTime { get; set; }
 
         [Display(Name = "status")]
