@@ -29,7 +29,7 @@ namespace ProjectSI_API.Controllers
                 category.categoryName = model.categoryName;
                 category.status = model.status;
                 System.Web.HttpContext.Current.Application.Lock();
-                _db.Categories.Add(category);
+                _db.Category.Add(category);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -52,7 +52,7 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category nowCategory = _db.Categories.Where(p => p.id == model.id).FirstOrDefault();
+                DAL.Category nowCategory = _db.Category.Where(p => p.id == model.id).FirstOrDefault();
                 nowCategory.categoryName = model.categoryName;
                 nowCategory.status = model.status;
                 _db.SaveChanges();
@@ -74,8 +74,8 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Category category = _db.Categories.Where(p => p.id == id).FirstOrDefault();
-                _db.Categories.Remove(category);
+                DAL.Category category = _db.Category.Where(p => p.id == id).FirstOrDefault();
+                _db.Category.Remove(category);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -90,21 +90,15 @@ namespace ProjectSI_API.Controllers
   
 
         [Route("isDuplicateName")]
-        public async Task<IHttpActionResult> isDuplicateName(DAL.Category model)
+        public async Task<IHttpActionResult> isDuplicateName(Models.CategoryModel model)
         {
-            Boolean result = true;
-            System.Web.HttpContext.Current.Application.Lock();
-            var category = from m in _db.Categories where m.categoryName == model.categoryName select m;
-            if (model.id != 0)
-            {
-                category = from m in category where m.id != model.id select m;
-            }
+            Boolean result = false;
 
-            if (!category.Any())
+            var nowCategory = _db.Category.Where(p => p.categoryName == model.categoryName).FirstOrDefault();
+            if (nowCategory == null)
             {
-                result = false;
+                result = true;
             }
-            System.Web.HttpContext.Current.Application.UnLock();
 
             return Json(new { result = result });
         }
@@ -114,7 +108,7 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getCategory(int categoryId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.Category category = _db.Categories.Where(p => p.id == categoryId).FirstOrDefault();
+            DAL.Category category = _db.Category.Where(p => p.id == categoryId).FirstOrDefault();
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(category);
         }
@@ -126,7 +120,7 @@ namespace ProjectSI_API.Controllers
 
 
             //var category = from m in _db.Categories select m;
-            var category = from m in _db.Categories select
+            var category = from m in _db.Category select
                 new
                 {
                     id = m.id,
