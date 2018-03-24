@@ -89,8 +89,22 @@ namespace ProjectSI_API.Controllers
 
   
 
-        [Route("isDuplicateName")]
-        public async Task<IHttpActionResult> isDuplicateName(Models.CategoryModel model)
+        [Route("CreateisDuplicateName")]
+        public async Task<IHttpActionResult> CreateisDuplicateName(Models.CategoryModel model)
+        {
+            Boolean result = false;
+
+            var nowCategory = _db.Category.Where(p => p.categoryName == model.categoryName).FirstOrDefault();
+            if (nowCategory == null)
+            {
+                result = true;
+            }
+
+            return Json(new { result = result });
+        }
+
+        [Route("UpdateisDuplicateName")]
+        public async Task<IHttpActionResult> UpdateisDuplicateName(Models.CategoryModel model)
         {
             Boolean result = false;
 
