@@ -95,7 +95,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = false;
 
             var nowCategory = _db.Category.Where(p => p.categoryName == model.categoryName).FirstOrDefault();
-            if (nowCategory == null)
+            if (nowCategory == null || nowCategory.categoryName == model.categoryName)
             {
                 result = true;
             }
