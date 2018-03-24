@@ -1,4 +1,5 @@
 ﻿using ProjectSI_API.DAL;
+using ProjectSI_API.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,27 +26,43 @@ namespace ProjectSI_API.Controllers
             Boolean result = true;
             try
             {
+                System.Web.HttpContext.Current.Application.Lock();
+
                 Evaluation eval = new Evaluation();
                 eval.evaluationName = model.evaluationName;
                 eval.description = model.description;
 
-                System.Web.HttpContext.Current.Application.Lock();
                 _db.Evaluations.Add(eval);
                 int isSave = _db.SaveChanges();
                 if (isSave == 1)
                 {
                     Evaluation e = _db.Evaluations.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
-                    List<Question> qList = new List<Question>();
                     foreach (var q in model.questions)
                     {
-                        Question quest = new Question();
-                        quest.question1 = q.value;
+                        DAL.Question quest = new DAL.Question();
+                        quest.question1 = q.question1;
                         quest.evaluationID = e.id;
-                        qList.Add(quest);
+
+                        _db.Questions.Add(quest);
+                        _db.SaveChanges();
+
+                        if (q.Choices != null)
+                        {
+                            List<DAL.Choice> chList = new List<DAL.Choice>();
+                            foreach (var ch in q.Choices)
+                            {
+                                DAL.Question ques = _db.Questions.Where(p => p.question1 == q.question1 && p.evaluationID == e.id).FirstOrDefault();
+                                DAL.Choice choice = new DAL.Choice();
+                                choice.choiceName = ch.choiceName;
+                                choice.questionID = ques.id;
+                                chList.Add(choice);
+                            }
+
+                            _db.Choices.AddRange(chList);
+                            _db.SaveChanges();
+                        }
+
                     }
-                    _db.Questions.AddRange(qList);
-                    _db.SaveChanges();
-                    
                 }
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -64,16 +81,52 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Evaluation evaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
-                evaluation.evaluationName = model.evaluationName;
-                evaluation.description = model.description;
 
-                foreach (var question in model.questions)
-                {
-                    Question e = _db.Questions.Where(p => p.id == question.id).FirstOrDefault();
-                    e.question1 = question.value;
-                }
+                var eval = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
+                eval.evaluationName = model.evaluationName;
+                eval.description = model.description;
+
                 _db.SaveChanges();
+
+                var questions = from q in _db.Questions where q.evaluationID == eval.id select q;
+                foreach (var ques in questions)
+                {
+                    var choice = from ch in _db.Choices where ch.questionID == ques.id select ch;
+                    foreach (var choiceDelete in choice)
+                    {
+                        _db.Choices.Remove(choiceDelete);
+                    }
+                    _db.Questions.Remove(ques);
+                }
+
+                _db.SaveChanges();
+
+                foreach (var q in model.questions)
+                {
+                    DAL.Question quest = new DAL.Question();
+                    quest.question1 = q.question1;
+                    quest.evaluationID = model.id;
+
+                    _db.Questions.Add(quest);
+                    _db.SaveChanges();
+
+                    if (q.Choices != null)
+                    {
+                        List<DAL.Choice> chList = new List<DAL.Choice>();
+                        foreach (var ch in q.Choices)
+                        {
+                            DAL.Question ques = _db.Questions.Where(p => p.question1 == q.question1 && p.evaluationID == model.id).FirstOrDefault();
+                            DAL.Choice choice = new DAL.Choice();
+                            choice.choiceName = ch.choiceName;
+                            choice.questionID = ques.id;
+                            chList.Add(choice);
+                        }
+
+                        _db.Choices.AddRange(chList);
+                        _db.SaveChanges();
+                    }
+
+                }
                 System.Web.HttpContext.Current.Application.UnLock();
             }
             catch (Exception e)
@@ -92,15 +145,18 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                var questions = from q in _db.Questions where q.evaluationID == evaluationId select q;
-                foreach (var question in questions)
+                var eval = _db.Evaluations.Where(p => p.id == evaluationId).FirstOrDefault();
+                var questions = from q in _db.Questions where q.evaluationID == eval.id select q;
+                foreach (var ques in questions)
                 {
-                    DAL.Question ques = _db.Questions.Where(p => p.id == question.id).FirstOrDefault();
+                    var choice = from ch in _db.Choices where ch.questionID == ques.id select ch;
+                    foreach (var choiceDelete in choice)
+                    {
+                        _db.Choices.Remove(choiceDelete);
+                    }
                     _db.Questions.Remove(ques);
                 }
-
-                DAL.Evaluation evaluation = _db.Evaluations.Where(p => p.id == evaluationId).FirstOrDefault();
-                _db.Evaluations.Remove(evaluation);
+                _db.Evaluations.Remove(eval);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -112,47 +168,76 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("isDuplicateName")]
-        public async Task<IHttpActionResult> isDuplicateName(DAL.Evaluation model)
+        [Route("isDuplicateNameCreate")]
+        public async Task<IHttpActionResult> isDuplicateNameCreate(DAL.Evaluation model)
         {
-            Boolean result = true;
+            Boolean result = false;
             System.Web.HttpContext.Current.Application.Lock();
-            var evaluation = from m in _db.Evaluations where m.evaluationName == model.evaluationName select m;
+            var evaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
             if (model.id != 0)
             {
-                evaluation = from m in evaluation where m.id != model.id select m;
+                result = true;
             }
 
-            if (!evaluation.Any())
+            System.Web.HttpContext.Current.Application.UnLock();
+
+            return Json(new { result = result });
+        }
+
+        [Route("isDuplicateNameUpdate")]
+        public async Task<IHttpActionResult> isDuplicateNameUpdate(DAL.Evaluation model)
+        {
+            Boolean result = false;
+            System.Web.HttpContext.Current.Application.Lock();
+            var evaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
+            if (model.id != 0 || evaluation.evaluationName == model.evaluationName)
             {
-                result = false;
+                result = true;
             }
             System.Web.HttpContext.Current.Application.UnLock();
 
             return Json(new { result = result });
         }
 
+        //[Route("isDuplicateName")]
+        //public async Task<IHttpActionResult> isDuplicateName(DAL.Evaluation model)
+        //{
+        //    Boolean result = true;
+        //    System.Web.HttpContext.Current.Application.Lock();
+        //    var evaluation = from m in _db.Evaluations where m.evaluationName == model.evaluationName select m;
+        //    if (model.id != 0)
+        //    {
+        //        evaluation = from m in evaluation where m.id != model.id select m;
+        //    }
+
+        //    if (!evaluation.Any())
+        //    {
+        //        result = false;
+        //    }
+        //    System.Web.HttpContext.Current.Application.UnLock();
+
+        //    return Json(new { result = result });
+        //}
+
         [Route("getevaluation/{evaluationId}")]
         [HttpGet]
         public async Task<IHttpActionResult> getevaluation(int evaluationId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.Evaluation evaluation = _db.Evaluations.Where(p => p.id == evaluationId).FirstOrDefault();
-            //EvaluationQuestionModel model = null;
-            //model.id = evaluation.id;
-            //model.evaluationName = evaluation.evaluationName;
-            //model.description = evaluation.description;
-            //var questions = from q in _db.Questions where q.evaluationID == evaluationId select q;
-            //List<DAL.Question> qList = new List<DAL.Question>();
-            //foreach (var q in questions)
-            //{
-            //    DAL.Question quest = new DAL.Question();
-            //    quest.id = q.id;
-            //    quest.question1 = q.question1;
-            //    quest.evaluationID = q.evaluationID;
-            //    qList.Add(quest);
-            //}
-            //model.questions = qList;
+
+            var evaluation = from eval in _db.Evaluations
+                             where eval.id.Equals(evaluationId)
+                             select new
+                             {
+                                 id = eval.id,
+                                 evaluationName = eval.evaluationName,
+                                 description = eval.description
+
+                             };
+            //Questions = eval.Questions.ToArray()
+            //join q in _db.Questions on eval.id equals q.evaluationID
+            //join 
+
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(evaluation);
         }

@@ -20,7 +20,6 @@ namespace ProjectSI_API.Models
         [Display(Name = "description")]
         public string description { get; set; }
 
-        public List<Question> questions { get; set; }
-        public List<Choice> choices { get; set; }
+        public List<DAL.Question> questions { get; set; }
     }
 }

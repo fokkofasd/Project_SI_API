@@ -15,69 +15,132 @@ namespace ProjectSI_API.Controllers
     {
         SIDBEntities _db = new SIDBEntities();
 
-        [Route("create")]
-        public async Task<IHttpActionResult> create(List<Question> model)
+        //[Route("create")]
+        //public async Task<IHttpActionResult> create(List<Question> model)
+        //{
+        //    Boolean result = true;
+        //    try
+        //    {
+        //        System.Web.HttpContext.Current.Application.Lock();
+        //        foreach (var questionModel in model)
+        //        {
+        //            _db.Questions.Add(questionModel);
+        //            _db.SaveChanges();
+        //        }
+        //        System.Web.HttpContext.Current.Application.UnLock();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        result = false;
+        //    }
+
+        //    return Json(new { result = result });
+        //}
+
+        //[Route("update")]
+        //public async Task<IHttpActionResult> update(List<Question> model)
+        //{
+        //    Boolean result = true;
+        //    try
+        //    {
+        //        System.Web.HttpContext.Current.Application.Lock();
+        //        foreach (var questionModel in model)
+        //        {
+        //            DAL.Question question = _db.Questions.Where(p => p.id == questionModel.id).FirstOrDefault();
+        //            question.question1 = questionModel.question1;
+        //            _db.SaveChanges();
+        //        }
+        //        System.Web.HttpContext.Current.Application.UnLock();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        result = false;
+        //    }
+
+        //    return Json(new { result = result });
+        //}
+
+        //[Route("delete/{questionId}")]
+        //public async Task<IHttpActionResult> delete(int questionId)
+        //{
+        //    Boolean result = true;
+        //    try
+        //    {
+        //        System.Web.HttpContext.Current.Application.Lock();
+        //        DAL.Question question = _db.Questions.Where(p => p.id == questionId).FirstOrDefault();
+        //        _db.Questions.Remove(question);
+        //        _db.SaveChanges();
+        //        System.Web.HttpContext.Current.Application.UnLock();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        result = false;
+        //    }
+
+        //    return Json(new { result = result });
+        //}
+
+        [Route("isDuplicateNameCreate")]
+        public async Task<IHttpActionResult> isDuplicateNameCreate(DAL.Evaluation model)
         {
-            Boolean result = true;
-            try
+            Boolean result = false;
+            System.Web.HttpContext.Current.Application.Lock();
+            var evaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
+            foreach (var dupName in evaluation.Questions)
             {
-                System.Web.HttpContext.Current.Application.Lock();
-                foreach (var questionModel in model)
-                {
-                    _db.Questions.Add(questionModel);
-                    _db.SaveChanges();
-                }
-                System.Web.HttpContext.Current.Application.UnLock();
+
             }
-            catch (Exception e)
-            {
-                result = false;
-            }
+
+            System.Web.HttpContext.Current.Application.UnLock();
 
             return Json(new { result = result });
         }
 
-        [Route("update")]
-        public async Task<IHttpActionResult> update(List<Question> model)
+        [Route("getquestion/{evaluationId}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getquestion(int evaluationId)
         {
-            Boolean result = true;
-            try
-            {
-                System.Web.HttpContext.Current.Application.Lock();
-                foreach (var questionModel in model)
-                {
-                    DAL.Question question = _db.Questions.Where(p => p.id == questionModel.id).FirstOrDefault();
-                    question.question1 = questionModel.question1;
-                    _db.SaveChanges();
-                }
-                System.Web.HttpContext.Current.Application.UnLock();
-            }
-            catch (Exception e)
-            {
-                result = false;
-            }
+            System.Web.HttpContext.Current.Application.Lock();
 
-            return Json(new { result = result });
+            var evaluation = from q in _db.Questions
+                             where q.evaluationID.Equals(evaluationId)
+                             select new
+                             {
+                                 id = q.id,
+                                 question1 = q.question1,
+                                 evaluationID = q.evaluationID
+
+                             };
+            //Questions = eval.Questions.ToArray()
+            //join q in _db.Questions on eval.id equals q.evaluationID
+            //join 
+
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(evaluation);
         }
 
-        [Route("delete/{questionId}")]
-        public async Task<IHttpActionResult> delete(int questionId)
+        [Route("getchoice/{evaluationId}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getchoice(int evaluationId)
         {
-            Boolean result = true;
-            try
-            {
-                System.Web.HttpContext.Current.Application.Lock();
-                DAL.Question question = _db.Questions.Where(p => p.id == questionId).FirstOrDefault();
-                _db.Questions.Remove(question);
-                _db.SaveChanges();
-                System.Web.HttpContext.Current.Application.UnLock();
-            }
-            catch (Exception e)
-            {
-                result = false;
-            }
+            System.Web.HttpContext.Current.Application.Lock();
 
-            return Json(new { result = result });
+            var evaluation = from q in _db.Questions
+                             join ch in _db.Choices on q.id equals ch.questionID
+                             where q.evaluationID.Equals(evaluationId)
+                             select new
+                             {
+                                 id = ch.id,
+                                 choiceName = ch.choiceName,
+                                 questionID = q.id
+
+                             };
+            //Questions = eval.Questions.ToArray()
+            //join q in _db.Questions on eval.id equals q.evaluationID
+            //join 
+
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(evaluation);
         }
     }
 }
