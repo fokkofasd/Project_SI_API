@@ -250,6 +250,7 @@ namespace ProjectSI_API.Controllers
             var evaluation = from m in _db.Evaluations select
                                 new
                                 {
+                                    id = m.id,
                                     evaluationName = m.evaluationName,
                                     description = m.description
                                 };
