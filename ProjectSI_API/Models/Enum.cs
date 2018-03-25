@@ -29,4 +29,13 @@ namespace ProjectSI_API.Models
         [Display(Name = "checklists")]
         public string value { get; set; }
     }
+
+    public class Choice
+    {
+        public string id { get; set; }
+
+        [Required(ErrorMessage = "กรุณากรอกตัวเลือก")]
+        [Display(Name = "choices")]
+        public string value { get; set; }
+    }
 }
