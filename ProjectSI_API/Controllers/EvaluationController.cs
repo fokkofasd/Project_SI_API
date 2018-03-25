@@ -40,20 +40,20 @@ namespace ProjectSI_API.Controllers
                     foreach (var q in model.questions)
                     {
                         DAL.Question quest = new DAL.Question();
-                        quest.question1 = q.question1;
+                        quest.question1 = q.value;
                         quest.evaluationID = e.id;
 
                         _db.Questions.Add(quest);
                         _db.SaveChanges();
 
-                        if (q.Choices != null)
+                        if (q.choices != null)
                         {
                             List<DAL.Choice> chList = new List<DAL.Choice>();
-                            foreach (var ch in q.Choices)
+                            foreach (var ch in q.choices)
                             {
-                                DAL.Question ques = _db.Questions.Where(p => p.question1 == q.question1 && p.evaluationID == e.id).FirstOrDefault();
+                                DAL.Question ques = _db.Questions.Where(p => p.question1 == q.value && p.evaluationID == e.id).FirstOrDefault();
                                 DAL.Choice choice = new DAL.Choice();
-                                choice.choiceName = ch.choiceName;
+                                choice.choiceName = ch.value;
                                 choice.questionID = ques.id;
                                 chList.Add(choice);
                             }
@@ -104,20 +104,20 @@ namespace ProjectSI_API.Controllers
                 foreach (var q in model.questions)
                 {
                     DAL.Question quest = new DAL.Question();
-                    quest.question1 = q.question1;
+                    quest.question1 = q.value;
                     quest.evaluationID = model.id;
 
                     _db.Questions.Add(quest);
                     _db.SaveChanges();
 
-                    if (q.Choices != null)
+                    if (q.choices != null)
                     {
                         List<DAL.Choice> chList = new List<DAL.Choice>();
-                        foreach (var ch in q.Choices)
+                        foreach (var ch in q.choices)
                         {
-                            DAL.Question ques = _db.Questions.Where(p => p.question1 == q.question1 && p.evaluationID == model.id).FirstOrDefault();
+                            DAL.Question ques = _db.Questions.Where(p => p.question1 == q.value && p.evaluationID == model.id).FirstOrDefault();
                             DAL.Choice choice = new DAL.Choice();
-                            choice.choiceName = ch.choiceName;
+                            choice.choiceName = ch.value;
                             choice.questionID = ques.id;
                             chList.Add(choice);
                         }

@@ -19,6 +19,8 @@ namespace ProjectSI_API.Models
         [Required(ErrorMessage = "กรุณากรอกคำถาม")]
         [Display(Name = "questions")]
         public string value { get; set; }
+
+        public List<Choice> choices { get; set; }
     }
 
     public class Checklist
