@@ -88,12 +88,15 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.Lock();
             foreach (var dupName in model.questions)
             {
-                foreach (var dupName2 in model.questions)
+                if (model != null)
                 {
-                    if (dupName.value == dupName2.value)
+                    foreach (var dupName2 in model.questions)
                     {
-                        result = false;
-                        return Json(new { result = result });
+                        if (dupName.value == dupName2.value)
+                        {
+                            result = false;
+                            return Json(new { result = result });
+                        }
                     }
                 }
             }
