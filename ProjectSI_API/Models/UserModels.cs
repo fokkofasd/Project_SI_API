@@ -9,7 +9,7 @@ namespace ProjectSI_API.Models
     public class UserModels
     {
         //[Required(ErrorMessage = "กรุณากรอกรหัสประจำตัว")]
-        [Display(Name = "personalID")]
+        //[Display(Name = "personalID")]
         public string personalID { get; set; }
 
         [Required(ErrorMessage = "กรุณากรอกชื่อ")]

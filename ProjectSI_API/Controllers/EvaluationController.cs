@@ -192,7 +192,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
 
-            var nowEvaluation = _db.Evaluation.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
+            var nowEvaluation = _db.Evaluation.Where(p => p.id == model.id).FirstOrDefault();
             if (nowEvaluation == null || nowEvaluation.evaluationName == model.evaluationName)
             {
                 result = true;

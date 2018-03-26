@@ -38,11 +38,11 @@ namespace ProjectSI_API.Controllers
                 goal.userID = User.Identity.GetUserId();
 
                 System.Web.HttpContext.Current.Application.Lock();
-                _db.Goals.Add(goal);
+                _db.Goal.Add(goal);
                 int isSave = _db.SaveChanges();
                 if (isSave == 1)
                 {
-                    Goal g = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
+                    Goal g = _db.Goal.Where(p => p.goalName == model.goalName).FirstOrDefault();
                     
                     List<Checklist> cList = new List<Checklist>();
                     foreach (var c in model.checklists)
@@ -52,7 +52,7 @@ namespace ProjectSI_API.Controllers
                         checklist.goalID = g.id;
                         cList.Add(checklist);
                     }
-                    _db.Checklists.AddRange(cList);
+                    _db.Checklist.AddRange(cList);
                     _db.SaveChanges();
 
                     List<GoalHandler> ghList = new List<GoalHandler>();
@@ -65,10 +65,10 @@ namespace ProjectSI_API.Controllers
                             GoalHandler gh = new GoalHandler();
                             gh.userID = u;
                             gh.goalID = g.id;
-                            _db.GoalHandlers.Add(gh);
+                            _db.GoalHandler.Add(gh);
                             _db.SaveChanges();
 
-                            var c = from cl in _db.Checklists where cl.goalID.Equals(g.id) select cl;
+                            var c = from cl in _db.Checklist where cl.goalID.Equals(g.id) select cl;
                             List<ChecklistProgress> clpList = new List<ChecklistProgress>();
                             foreach (var clp in c)
                             {
@@ -79,7 +79,7 @@ namespace ProjectSI_API.Controllers
                                 checklistProgress.goalHandlerID = gh.id;
                                 clpList.Add(checklistProgress);
                             }
-                            _db.ChecklistProgresses.AddRange(clpList);
+                            _db.ChecklistProgress.AddRange(clpList);
                         }
                     }
                     else
@@ -87,10 +87,10 @@ namespace ProjectSI_API.Controllers
                         GoalHandler gh = new GoalHandler();
                         gh.userID = User.Identity.GetUserId();
                         gh.goalID = g.id;
-                        _db.GoalHandlers.Add(gh);
+                        _db.GoalHandler.Add(gh);
                         _db.SaveChanges();
 
-                        var c = from cl in _db.Checklists where cl.goalID.Equals(g.id) select cl;
+                        var c = from cl in _db.Checklist where cl.goalID.Equals(g.id) select cl;
                         List<ChecklistProgress> clpList = new List<ChecklistProgress>();
                         foreach (var clp in c)
                         {
@@ -101,7 +101,7 @@ namespace ProjectSI_API.Controllers
                             checklistProgress.goalHandlerID = gh.id;
                             clpList.Add(checklistProgress);
                         }
-                        _db.ChecklistProgresses.AddRange(clpList);
+                        _db.ChecklistProgress.AddRange(clpList);
                     }
 
                     _db.SaveChanges();
@@ -124,7 +124,7 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.Goal goal = _db.Goals.Where(p => p.id == model.id).FirstOrDefault();
+                DAL.Goal goal = _db.Goal.Where(p => p.id == model.id).FirstOrDefault();
                 if (goal.endDate > DateTime.Now)
                 {
                     goal.goalName = model.goalName;
@@ -154,11 +154,11 @@ namespace ProjectSI_API.Controllers
             {
                 System.Web.HttpContext.Current.Application.Lock();
 
-                var checklists = from cl in _db.Checklists where cl.goalID.Equals(goalId) select cl;
+                var checklists = from cl in _db.Checklist where cl.goalID.Equals(goalId) select cl;
                 var checkused = 0;
                 foreach (var checklist in checklists)
                 {
-                    var checklistPs = from clp in _db.ChecklistProgresses where clp.checklistID.Equals(checklist.id) select clp;
+                    var checklistPs = from clp in _db.ChecklistProgress where clp.checklistID.Equals(checklist.id) select clp;
                     foreach (var checklistP in checklistPs)
                     {
                         if (checklistP.checklistProgress1 == 2)
@@ -173,22 +173,22 @@ namespace ProjectSI_API.Controllers
                     
                     foreach (var checklist in checklists)
                     {
-                        var checklistPs = from clp in _db.ChecklistProgresses where clp.checklistID.Equals(checklist.id) select clp;
+                        var checklistPs = from clp in _db.ChecklistProgress where clp.checklistID.Equals(checklist.id) select clp;
                         foreach (var checklistP in checklistPs)
                         {
-                            _db.ChecklistProgresses.Remove(checklistP);
+                            _db.ChecklistProgress.Remove(checklistP);
                         }
-                        _db.Checklists.Remove(checklist);
+                        _db.Checklist.Remove(checklist);
                     }
 
-                    var goalHandlers = from gh in _db.GoalHandlers where gh.goalID.Equals(goalId) select gh;
+                    var goalHandlers = from gh in _db.GoalHandler where gh.goalID.Equals(goalId) select gh;
                     foreach (var goalHandler in goalHandlers)
                     {
-                        _db.GoalHandlers.Remove(goalHandler);
+                        _db.GoalHandler.Remove(goalHandler);
                     }
 
-                    Goal goal = _db.Goals.Where(p => p.id == goalId).FirstOrDefault();
-                    _db.Goals.Remove(goal);
+                    Goal goal = _db.Goal.Where(p => p.id == goalId).FirstOrDefault();
+                    _db.Goal.Remove(goal);
                     _db.SaveChanges();
                 }
                 else
@@ -212,8 +212,8 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.Lock();
 
             var userId = User.Identity.GetUserId();
-            var Goal = from gh in _db.GoalHandlers
-                       join g in _db.Goals on gh.goalID equals g.id
+            var Goal = from gh in _db.GoalHandler
+                       join g in _db.Goal on gh.goalID equals g.id
                        where gh.userID.Equals(userId)
                        select
                 new
@@ -257,8 +257,8 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.Lock();
 
             var userId = User.Identity.GetUserId();
-            var Goal = from g in _db.Goals
-                       join gh in _db.GoalHandlers on g.id equals gh.goalID
+            var Goal = from g in _db.Goal
+                       join gh in _db.GoalHandler on g.id equals gh.goalID
                        where g.userID.Equals(userId) && gh.userID != userId
                        select
                 new
@@ -282,6 +282,14 @@ namespace ProjectSI_API.Controllers
             {
                 Goal = from m in Goal where m.goalName.Contains(model.goalName) select m;
             }
+            if (model.categoryID != 0)
+            {
+                Goal = from m in Goal where m.categoryID == model.categoryID select m;
+            }
+            if (model.circleID != 0)
+            {
+                Goal = from m in Goal where m.circleID == model.circleID select m;
+            }
 
             Goal = from m in Goal orderby m.goalName select m;
 
@@ -294,7 +302,7 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getGoal(int goalId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            var goal = from g in _db.Goals
+            var goal = from g in _db.Goal
                        where g.id.Equals(goalId)
                        select new
                        {
@@ -318,7 +326,7 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
             //DAL.Goal goal = _db.Goals.Where(p => p.userID == userId).FirstOrDefault();
-            var goal = from g in _db.Goals
+            var goal = from g in _db.Goal
                        where g.userID.Equals(userId)
                        select new
                        {
@@ -343,7 +351,7 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getGoalByCircleName(string userId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            var goal = from g in _db.Goals
+            var goal = from g in _db.Goal
                        where g.userID.Equals(userId)
                        select new
                        {
@@ -368,8 +376,8 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
             System.Web.HttpContext.Current.Application.Lock();
-            var goal = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
-            if (goal.goalName == null)
+            var goal = _db.Goal.Where(p => p.goalName == model.goalName).FirstOrDefault();
+            if (goal == null)
             {
                 result = true;
             }
@@ -384,8 +392,8 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
             System.Web.HttpContext.Current.Application.Lock();
-            var goal = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
-            if (goal.goalName == null || goal.goalName == model.goalName)
+            var goal = _db.Goal.Where(p => p.id == model.id).FirstOrDefault();
+            if (goal == null || goal.goalName == model.goalName)
             {
                 result = true;
             }
