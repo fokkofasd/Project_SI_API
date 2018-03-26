@@ -307,6 +307,37 @@ namespace ProjectSI_API.Controllers
             return Json(goal);
         }
 
+        [Route("isDuplicateNameCreate")]
+        public async Task<IHttpActionResult> isDuplicateNameCreate(DAL.Goal model)
+        {
+            Boolean result = false;
+            System.Web.HttpContext.Current.Application.Lock();
+            var goal = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
+            if (goal.goalName == null)
+            {
+                result = true;
+            }
+
+            System.Web.HttpContext.Current.Application.UnLock();
+
+            return Json(new { result = result });
+        }
+
+        [Route("isDuplicateNameUpdate")]
+        public async Task<IHttpActionResult> isDuplicateNameUpdate(DAL.Goal model)
+        {
+            Boolean result = false;
+            System.Web.HttpContext.Current.Application.Lock();
+            var goal = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
+            if (goal.goalName == null || goal.goalName == model.goalName)
+            {
+                result = true;
+            }
+            System.Web.HttpContext.Current.Application.UnLock();
+
+            return Json(new { result = result });
+        }
+
         //[Route("getGoalByCommander/{userId}")]
         //[HttpGet]
         //public async Task<IHttpActionResult> getGoalByCommander(string userId)
