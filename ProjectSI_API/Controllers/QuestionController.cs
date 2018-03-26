@@ -85,23 +85,24 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> isDuplicateNameCreate(EvaluationQuestionModel model)
         {
             Boolean result = true;
-            System.Web.HttpContext.Current.Application.Lock();
+            int i = 0;
             foreach (var dupName in model.questions)
             {
-                if (model.questions != null)
+                if (dupName.value != "")
                 {
+                    int j = 0;
                     foreach (var dupName2 in model.questions)
                     {
-                        if (dupName.value == dupName2.value)
+                        if (dupName.value == dupName2.value && i != j)
                         {
                             result = false;
                             return Json(new { result = result });
                         }
+                        j++;
                     }
                 }
+                i++;
             }
-
-            System.Web.HttpContext.Current.Application.UnLock();
 
             return Json(new { result = result });
         }
