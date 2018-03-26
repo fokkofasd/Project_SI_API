@@ -178,7 +178,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = false;
 
             var nowEvaluation = _db.Evaluation.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
-            if (nowEvaluation.evaluationName == null)
+            if (nowEvaluation == null)
             {
                 result = true;
             }
@@ -193,7 +193,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = false;
 
             var nowEvaluation = _db.Evaluation.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
-            if (nowEvaluation.evaluationName == null || nowEvaluation.evaluationName == model.evaluationName)
+            if (nowEvaluation == null || nowEvaluation.evaluationName == model.evaluationName)
             {
                 result = true;
             }

@@ -21,6 +21,8 @@ namespace ProjectSI_API.Models
         public string value { get; set; }
 
         public List<Choice> choices { get; set; }
+
+
     }
 
     public class Checklist
@@ -36,8 +38,8 @@ namespace ProjectSI_API.Models
     {
         public string id { get; set; }
 
-        [Required(ErrorMessage = "กรุณากรอกตัวเลือก")]
-        [Display(Name = "choices")]
+       // [Required(ErrorMessage = "กรุณากรอกตัวเลือก")]
+       // [Display(Name = "choices")]
         public string value { get; set; }
     }
 }
