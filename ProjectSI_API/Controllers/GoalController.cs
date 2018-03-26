@@ -210,10 +210,10 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> searchbyself(DAL.Goal model)
         {
             System.Web.HttpContext.Current.Application.Lock();
-<<<<<<< HEAD
+
             var userId = User.Identity.GetUserId();
-            var Goal = from g in _db.Goals
-                       join gh in _db.GoalHandlers on g.userID equals gh.userID
+            var Goal = from g in _db.Goal
+                       join gh in _db.GoalHandler on g.userID equals gh.userID
                        where gh.userID.Equals(userId)
                        select
                 new
@@ -226,26 +226,13 @@ namespace ProjectSI_API.Controllers
                         userName = g.User.firstname,
                         userLastName = g.User.lastname,
                         startDate = g.startDate,
-                        endDate = g.endDate
+                        endDate = g.endDate,
+                        categoryName = g.Category.categoryName,
+                        circleName = g.Circle.circleName,
+                        circleTime = g.Circle.circleTime
                     };
-=======
 
-            var Goal = from m in _db.Goal
-                       select
-                new
-                     {
-                        id = m.id,
-                        goalName = m.goalName,
-                        description = m.description,
-                        categoryID = m.categoryID,
-                        circleID = m.circleID,
-                        startDate = m.startDate,
-                        endDate = m.endDate,
-                        categoryName = m.Category.categoryName,
-                        circleName = m.Circle.circleName
 
-                };
->>>>>>> 396859a4a869af6c390a59331d8e528de964527d
             if (model.goalName != null)
             {
                 Goal = from m in Goal where m.goalName.Contains(model.goalName) select m;
@@ -270,8 +257,8 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.Lock();
 
             var userId = User.Identity.GetUserId();
-            var Goal = from g in _db.Goals
-                       join gh in _db.GoalHandlers on g.userID equals gh.userID
+            var Goal = from g in _db.Goal
+                       join gh in _db.GoalHandler on g.userID equals gh.userID
                        where gh.userID.Equals(userId) && gh.userID != userId
                        select
                 new
@@ -284,7 +271,12 @@ namespace ProjectSI_API.Controllers
                     userName = g.User.firstname,
                     userLastName = g.User.lastname,
                     startDate = g.startDate,
-                    endDate = g.endDate
+                    endDate = g.endDate,
+                    categoryName = g.Category.categoryName,
+                    circleName = g.Circle.circleName,
+                    circleTime = g.Circle.circleTime
+
+
                 };
             if (model.goalName != null)
             {
@@ -376,7 +368,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
             System.Web.HttpContext.Current.Application.Lock();
-            var goal = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
+            var goal = _db.Goal.Where(p => p.goalName == model.goalName).FirstOrDefault();
             if (goal.goalName == null)
             {
                 result = true;
@@ -392,7 +384,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
             System.Web.HttpContext.Current.Application.Lock();
-            var goal = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
+            var goal = _db.Goal.Where(p => p.goalName == model.goalName).FirstOrDefault();
             if (goal.goalName == null || goal.goalName == model.goalName)
             {
                 result = true;
