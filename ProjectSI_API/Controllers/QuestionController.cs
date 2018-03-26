@@ -1,4 +1,5 @@
 ﻿using ProjectSI_API.DAL;
+using ProjectSI_API.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,14 +82,20 @@ namespace ProjectSI_API.Controllers
         //}
 
         [Route("isDuplicateNameCreate")]
-        public async Task<IHttpActionResult> isDuplicateNameCreate(DAL.Evaluation model)
+        public async Task<IHttpActionResult> isDuplicateNameCreate(EvaluationQuestionModel model)
         {
-            Boolean result = false;
+            Boolean result = true;
             System.Web.HttpContext.Current.Application.Lock();
-            var evaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
-            foreach (var dupName in evaluation.Questions)
+            foreach (var dupName in model.questions)
             {
-
+                foreach (var dupName2 in model.questions)
+                {
+                    if (dupName.value == dupName2.value)
+                    {
+                        result = false;
+                        return Json(new { result = result });
+                    }
+                }
             }
 
             System.Web.HttpContext.Current.Application.UnLock();
