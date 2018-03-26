@@ -88,7 +88,7 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.Lock();
             foreach (var dupName in model.questions)
             {
-                if (model != null)
+                if (model.questions != null)
                 {
                     foreach (var dupName2 in model.questions)
                     {
