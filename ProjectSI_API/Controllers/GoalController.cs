@@ -206,10 +206,29 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        [Route("search")]
-        public async Task<IHttpActionResult> search(DAL.Goal model)
+        [Route("searchbyself")]
+        public async Task<IHttpActionResult> searchbyself(DAL.Goal model)
         {
             System.Web.HttpContext.Current.Application.Lock();
+<<<<<<< HEAD
+            var userId = User.Identity.GetUserId();
+            var Goal = from g in _db.Goals
+                       join gh in _db.GoalHandlers on g.userID equals gh.userID
+                       where gh.userID.Equals(userId)
+                       select
+                new
+                     {
+                        id = g.id,
+                        goalName = g.goalName,
+                        description = g.description,
+                        categoryID = g.categoryID,
+                        circleID = g.circleID,
+                        userName = g.User.firstname,
+                        userLastName = g.User.lastname,
+                        startDate = g.startDate,
+                        endDate = g.endDate
+                    };
+=======
 
             var Goal = from m in _db.Goal
                        select
@@ -226,6 +245,7 @@ namespace ProjectSI_API.Controllers
                         circleName = m.Circle.circleName
 
                 };
+>>>>>>> 396859a4a869af6c390a59331d8e528de964527d
             if (model.goalName != null)
             {
                 Goal = from m in Goal where m.goalName.Contains(model.goalName) select m;
@@ -238,6 +258,39 @@ namespace ProjectSI_API.Controllers
             {
                 Goal = from m in Goal where m.circleID == model.circleID select m;
             }
+            Goal = from m in Goal orderby m.goalName select m;
+
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(Goal);
+        }
+
+        [Route("searchbyCommander")]
+        public async Task<IHttpActionResult> searchbyCommander(DAL.Goal model)
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+
+            var userId = User.Identity.GetUserId();
+            var Goal = from g in _db.Goals
+                       join gh in _db.GoalHandlers on g.userID equals gh.userID
+                       where gh.userID.Equals(userId) && gh.userID != userId
+                       select
+                new
+                {
+                    id = g.id,
+                    goalName = g.goalName,
+                    description = g.description,
+                    categoryID = g.categoryID,
+                    circleID = g.circleID,
+                    userName = g.User.firstname,
+                    userLastName = g.User.lastname,
+                    startDate = g.startDate,
+                    endDate = g.endDate
+                };
+            if (model.goalName != null)
+            {
+                Goal = from m in Goal where m.goalName.Contains(model.goalName) select m;
+            }
+
             Goal = from m in Goal orderby m.goalName select m;
 
             System.Web.HttpContext.Current.Application.UnLock();
