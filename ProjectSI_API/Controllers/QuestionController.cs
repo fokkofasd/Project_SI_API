@@ -113,12 +113,12 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var evaluation = from q in _db.Questions
+            var evaluation = from q in _db.Question
                              where q.evaluationID.Equals(evaluationId)
                              select new
                              {
                                  id = q.id,
-                                 question1 = q.question1,
+                                 value = q.question1,
                                  evaluationID = q.evaluationID
 
                              };
@@ -136,8 +136,8 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var evaluation = from q in _db.Questions
-                             join ch in _db.Choices on q.id equals ch.questionID
+            var evaluation = from q in _db.Question
+                             join ch in _db.Choice on q.id equals ch.questionID
                              where q.evaluationID.Equals(evaluationId)
                              select new
                              {
