@@ -174,7 +174,11 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
 
+<<<<<<< HEAD
             var nowUser = _db.Users.Where(p => p.personalID == model.personalID).FirstOrDefault();
+=======
+            var nowUser = _db.User.Where(p => p.userID == model.userID).FirstOrDefault();
+>>>>>>> 7c510420a115ece54815e814a9e0f9c64f351b86
             if (nowUser == null || nowUser.personalID == model.personalID)
             {
                 result = true;

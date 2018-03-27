@@ -111,7 +111,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
 
-            var nowCircle = _db.Circle.Where(p => p.circleName == model.circleName).FirstOrDefault();
+            var nowCircle = _db.Circle.Where(p => p.id == model.id).FirstOrDefault();
             if (nowCircle == null || nowCircle.circleName == model.circleName)
             {
                 result = true;
