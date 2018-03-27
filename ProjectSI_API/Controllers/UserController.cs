@@ -125,6 +125,7 @@ namespace ProjectSI_API.Controllers
                 nowUser.commanderID = model.commanderID;
                 nowUser.personalID = model.personalID;
 
+
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -253,10 +254,15 @@ namespace ProjectSI_API.Controllers
                     status = u.status,
                     email = aspUser.Email,
                     userTypeID = u.userTypeID
+           
                 };
             if (model.firstname != null)
             {
                 user = from m in user where m.firstname.Contains(model.firstname) select m;
+            }
+            if (model.commanderID != null)
+            {
+                user = from m in user where m.commanderID.Contains(model.commanderID) select m;
             }
             if (model.lastname != null)
             {
