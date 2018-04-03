@@ -28,6 +28,10 @@ namespace ProjectSI_API.Models
 
         public string commanderID { get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "กรุณาเลือกคำนำหน้าชื่อ")]
+        //[Display(Name = "titleNameID")]
+        public int titleNameID { get; set; }
+
         [Required]
         public Nullable<int> status { get; set; }
 
