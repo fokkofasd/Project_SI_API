@@ -87,9 +87,10 @@ namespace ProjectSI_API.Controllers
                 return Json(GetErrorResult(result));
             }
 
-            AspNetUser nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
+            AspNetUsers nowUser = _db.AspNetUsers.Where(p => p.Email == user.Email).First();
             DAL.User gen = new DAL.User();
             gen.userID = nowUser.Id;
+            gen.titleNameID = (int)model.titleNameID;
             gen.personalID = model.personalID;
             gen.firstname = model.firstname;
             gen.lastname = model.lastname;
@@ -97,7 +98,7 @@ namespace ProjectSI_API.Controllers
             gen.commanderID = model.commanderID;
             gen.status = Models.Enum.STATUS_ACTIVE;
 
-            _db.Users.Add(gen);
+            _db.User.Add(gen);
             _db.SaveChanges();
 
             return Json(new { result = result });
@@ -115,8 +116,9 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
+                DAL.User nowUser = _db.User.Where(p => p.userID == model.userID).First();
                 //DAL.User gen = new DAL.User();
+                nowUser.titleNameID = (int)model.titleNameID;
                 nowUser.personalID = model.personalID;
                 nowUser.firstname = model.firstname;
                 nowUser.lastname = model.lastname;
@@ -147,14 +149,14 @@ namespace ProjectSI_API.Controllers
             //}
 
             Boolean result = true;
-            DAL.User nowUser = _db.Users.Where(p => p.userID == userId).First();
-            DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
+            DAL.User nowUser = _db.User.Where(p => p.userID == userId).First();
+            DAL.AspNetUsers nowAccount = _db.AspNetUsers.Where(p => p.Id == userId).First();
             if (nowUser != null && nowAccount != null)
             {
                 try
                 {
                     System.Web.HttpContext.Current.Application.Lock();
-                    _db.Users.Remove(nowUser);
+                    _db.User.Remove(nowUser);
                     _db.SaveChanges();
 
                     _db.AspNetUsers.Remove(nowAccount);
@@ -175,11 +177,9 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
 
-<<<<<<< HEAD
-            var nowUser = _db.Users.Where(p => p.personalID == model.personalID).FirstOrDefault();
-=======
+
             var nowUser = _db.User.Where(p => p.userID == model.userID).FirstOrDefault();
->>>>>>> 7c510420a115ece54815e814a9e0f9c64f351b86
+
             if (nowUser == null || nowUser.personalID == model.personalID)
             {
                 result = true;
@@ -193,7 +193,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
 
-            var nowUser = _db.Users.Where(p => p.personalID == model.personalID).FirstOrDefault();
+            var nowUser = _db.User.Where(p => p.personalID == model.personalID).FirstOrDefault();
             if (nowUser == null)
             {
                 result = true;
@@ -222,10 +222,11 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getUser(string userId)
         {
             System.Web.HttpContext.Current.Application.Lock();
-            DAL.User user = _db.Users.Find(userId);
-            DAL.AspNetUser aspNetUser = _db.AspNetUsers.Find(userId);
+            DAL.User user = _db.User.Find(userId);
+            DAL.AspNetUsers aspNetUser = _db.AspNetUsers.Find(userId);
             var daoUser = new
             {
+                titleNameID = user.titleNameID,
                 personalID = user.personalID,
                 firstname = user.firstname,
                 lastname = user.lastname,
@@ -244,8 +245,8 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
             
-            var user = from u in _db.Users
-                       join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
+            var user = from u in _db.User
+                       join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id join TitleName in _db.TitleName on u.titleNameID equals TitleName.titleNameID
                        where u.userTypeID.Equals(model.userTypeID)
                        select
                 new
@@ -257,7 +258,10 @@ namespace ProjectSI_API.Controllers
                     commanderID = u.commanderID,
                     status = u.status,
                     email = aspUser.Email,
-                    userTypeID = u.userTypeID
+                    userTypeID = u.userTypeID,
+                    titleNameID = u.titleNameID,
+                    titleName = TitleName.titleName1
+
            
                 };
             if (model.firstname != null)
@@ -290,7 +294,7 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
             var cmID = User.Identity.GetUserId();
-            var usersinCM = from u in _db.Users
+            var usersinCM = from u in _db.User
                             join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
                        where u.commanderID.Equals(cmID)
                        select new
@@ -313,7 +317,7 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> getuserCommander()
         {
             System.Web.HttpContext.Current.Application.Lock();
-            var userCM = from u in _db.Users
+            var userCM = from u in _db.User
                          where u.userTypeID.Equals(2) || u.userTypeID.Equals(3)
                          select new
                             {
@@ -326,13 +330,41 @@ namespace ProjectSI_API.Controllers
             return Json(userCM);
         }
 
+        [Route("titleName")]
+        public async Task<IHttpActionResult> titleName(DAL.TitleName model)
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+
+            var title = from t in _db.TitleName
+                         select
+            new
+            {
+                titleNameID = t.titleNameID,
+                titleName1 = t.titleName1,
+                status = t.status
+            };
+            if (model.titleName1 != null)
+            {
+                title = from t in title where t.titleName1.Contains(model.titleName1) select t;
+            }
+            if (model.status != 0)
+            {
+                title = from m in title where m.status == model.status select m;
+            }
+            title = from t in title orderby t.titleNameID select t;
+
+
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(title);
+        }
+
         [Route("getusersession")]
         [HttpGet]
         public async Task<IHttpActionResult> getusersession()
         {
             System.Web.HttpContext.Current.Application.Lock();
             var userID = User.Identity.GetUserId();
-            var user = from u in _db.Users
+            var user = from u in _db.User
                            where u.userID.Equals(userID)
                            select new
                            {
