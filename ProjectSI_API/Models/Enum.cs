@@ -42,4 +42,9 @@ namespace ProjectSI_API.Models
        // [Display(Name = "choices")]
         public string value { get; set; }
     }
+
+    public class UserType
+    {
+        public int userTypeid { get; set; }
+    }
 }

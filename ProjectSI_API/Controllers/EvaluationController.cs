@@ -32,18 +32,29 @@ namespace ProjectSI_API.Controllers
                 eval.evaluationName = model.evaluationName;
                 eval.description = model.description;
 
-                _db.Evaluation.Add(eval);
+                _db.Evaluations.Add(eval);
                 int isSave = _db.SaveChanges();
                 if (isSave == 1)
                 {
-                    Evaluation e = _db.Evaluation.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
+                    Evaluation e = _db.Evaluations.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
+                    List<UserTypeInEvaluation> utList = new List<UserTypeInEvaluation>();
+                    foreach (var ut in model.UserTypes)
+                    {
+                        UserTypeInEvaluation usertype = new UserTypeInEvaluation();
+                        usertype.userTypeid = ut.userTypeid;
+                        usertype.evaluationid = e.id;
+                        utList.Add(usertype);
+                    }
+                    _db.UserTypeInEvaluations.AddRange(utList);
+                    _db.SaveChanges();
+
                     foreach (var q in model.questions)
                     {
                         DAL.Question quest = new DAL.Question();
                         quest.question1 = q.value;
                         quest.evaluationID = e.id;
 
-                        _db.Question.Add(quest);
+                        _db.Questions.Add(quest);
                         _db.SaveChanges();
 
                         if (q.choices != null)
@@ -51,14 +62,14 @@ namespace ProjectSI_API.Controllers
                             List<DAL.Choice> chList = new List<DAL.Choice>();
                             foreach (var ch in q.choices)
                             {
-                                DAL.Question ques = _db.Question.Where(p => p.question1 == q.value && p.evaluationID == e.id).FirstOrDefault();
+                                DAL.Question ques = _db.Questions.Where(p => p.question1 == q.value && p.evaluationID == e.id).FirstOrDefault();
                                 DAL.Choice choice = new DAL.Choice();
                                 choice.choiceName = ch.value;
                                 choice.questionID = ques.id;
                                 chList.Add(choice);
                             }
 
-                            _db.Choice.AddRange(chList);
+                            _db.Choices.AddRange(chList);
                             _db.SaveChanges();
                         }
 
@@ -86,13 +97,13 @@ namespace ProjectSI_API.Controllers
             {
                 System.Web.HttpContext.Current.Application.Lock();
 
-                var eval = _db.Evaluation.Where(p => p.id == model.id).FirstOrDefault();
+                var eval = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
                 eval.evaluationName = model.evaluationName;
                 eval.description = model.description;
 
                 _db.SaveChanges();
 
-                var questions = from q in _db.Question where q.evaluationID == eval.id select q;
+                var questions = from q in _db.Questions where q.evaluationID == eval.id select q;
                 foreach (var ques in questions)
                 {
                     //var choice = from ch in _db.Choice where ch.questionID == ques.id select ch;
@@ -100,7 +111,7 @@ namespace ProjectSI_API.Controllers
                     //{
                     //    _db.Choice.Remove(choiceDelete);
                     //}
-                    _db.Question.Remove(ques);
+                    _db.Questions.Remove(ques);
                 }
 
                 _db.SaveChanges();
@@ -111,7 +122,7 @@ namespace ProjectSI_API.Controllers
                     quest.question1 = q.value;
                     quest.evaluationID = model.id;
 
-                    _db.Question.Add(quest);
+                    _db.Questions.Add(quest);
                     _db.SaveChanges();
 
                     //if (q.choices != null)
@@ -149,18 +160,18 @@ namespace ProjectSI_API.Controllers
             try
             {
                 System.Web.HttpContext.Current.Application.Lock();
-                var eval = _db.Evaluation.Where(p => p.id == evaluationId).FirstOrDefault();
-                var questions = from q in _db.Question where q.evaluationID == eval.id select q;
+                var eval = _db.Evaluations.Where(p => p.id == evaluationId).FirstOrDefault();
+                var questions = from q in _db.Questions where q.evaluationID == eval.id select q;
                 foreach (var ques in questions)
                 {
-                    var choice = from ch in _db.Choice where ch.questionID == ques.id select ch;
+                    var choice = from ch in _db.Choices where ch.questionID == ques.id select ch;
                     foreach (var choiceDelete in choice)
                     {
-                        _db.Choice.Remove(choiceDelete);
+                        _db.Choices.Remove(choiceDelete);
                     }
-                    _db.Question.Remove(ques);
+                    _db.Questions.Remove(ques);
                 }
-                _db.Evaluation.Remove(eval);
+                _db.Evaluations.Remove(eval);
                 _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
             }
@@ -177,7 +188,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
 
-            var nowEvaluation = _db.Evaluation.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
+            var nowEvaluation = _db.Evaluations.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
             if (nowEvaluation == null)
             {
                 result = true;
@@ -192,7 +203,7 @@ namespace ProjectSI_API.Controllers
         {
             Boolean result = false;
 
-            var nowEvaluation = _db.Evaluation.Where(p => p.id == model.id).FirstOrDefault();
+            var nowEvaluation = _db.Evaluations.Where(p => p.id == model.id).FirstOrDefault();
             if (nowEvaluation == null || nowEvaluation.evaluationName == model.evaluationName)
             {
                 result = true;
@@ -227,7 +238,7 @@ namespace ProjectSI_API.Controllers
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var evaluation = from eval in _db.Evaluation
+            var evaluation = from eval in _db.Evaluations
                              where eval.id.Equals(evaluationId)
                              select new
                              {
@@ -244,12 +255,33 @@ namespace ProjectSI_API.Controllers
             return Json(evaluation);
         }
 
+        [Route("getusertypeineva/{evaluationId}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getugetusertypeInEva(int evaluationId)
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+
+            var usertypeInEva = from utE in _db.UserTypeInEvaluations
+                             where utE.evaluationid.Equals(evaluationId)
+                             select new
+                             {
+                                 utEid = utE.id,
+                                 utEevaluationid = utE.evaluationid,
+                                 utEuserTypeid = utE.userTypeid,
+                                 utEuserTypeName = utE.UserType.UserTypeName
+                             };
+
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(usertypeInEva);
+        }
+
         [Route("search")]
         public async Task<IHttpActionResult> search(DAL.Evaluation model)
         {
             System.Web.HttpContext.Current.Application.Lock();
 
-            var evaluation = from m in _db.Evaluation select
+            var evaluation = from m in _db.Evaluations
+                             select
                                 new
                                 {
                                     id = m.id,
