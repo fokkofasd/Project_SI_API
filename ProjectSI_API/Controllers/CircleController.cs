@@ -27,7 +27,8 @@ namespace ProjectSI_API.Controllers
                 {
                          Circle circle = new Circle();
                         circle.circleName = model.circleName;
-                        circle.circleTime = model.circleTime;
+                        circle.startDate = model.startDate;
+                        circle.endDate = model.endDate;
                         circle.status = model.status;
 
 
@@ -57,7 +58,8 @@ namespace ProjectSI_API.Controllers
                 System.Web.HttpContext.Current.Application.Lock();
                     DAL.Circle nowCircle = _db.Circle.Where(p => p.id == model.id).FirstOrDefault();
                     nowCircle.circleName = model.circleName;
-                    nowCircle.circleTime = model.circleTime;
+                    nowCircle.startDate = model.startDate;
+                    nowCircle.endDate = model.endDate;
                     nowCircle.status = model.status;
                     _db.SaveChanges();
                 System.Web.HttpContext.Current.Application.UnLock();
@@ -142,20 +144,27 @@ namespace ProjectSI_API.Controllers
                 {
                         id = m.id,
                         circleName = m.circleName,
-                        circleTime = m.circleTime,
+                        startDate = m.startDate,
+                        endDate = m.endDate,
+                     //   circleTime = m.circleTime,
                         status = m.status,
                      };
                 if (model.circleName != null) {
                     circle = from m in circle where m.circleName.Contains(model.circleName) select m;
                 }
-                 if (model.circleTime != 0) {
-                circle = from m in circle where  m.circleTime <= model.circleTime select m;
-            }
+            //      if (model.circleTime != 0) {
+            //     circle = from m in circle where  m.circleTime <= model.circleTime select m;
+            //  }
+//            if (model.startDate != null)
+//            {
+//                circle = from m in circle where m.startDate.Contains(model.startDate) select m;
+//            }
             if (model.status != 0)
                 {
                     circle = from m in circle where m.status == model.status select m;
                 }
-            circle = from m in circle orderby m.circleTime select m;
+           // circle = from m in circle orderby m.circleTime select m;
+
 
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(circle);
