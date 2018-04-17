@@ -301,7 +301,7 @@ namespace ProjectSI_API.Controllers
                        {
                            firstname = u.firstname,
                            lastname = u.lastname,
-
+                           personalID = u.personalID,
                            email = aspUser.Email,
                            status = u.status,
                            userID = u.userID,
