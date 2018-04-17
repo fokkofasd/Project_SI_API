@@ -126,10 +126,19 @@ namespace ProjectSI_API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> getCircle(int circleId)
         {
+            
             System.Web.HttpContext.Current.Application.Lock();
             DAL.Circle circle = _db.Circle.Where(p => p.id == circleId).FirstOrDefault();
+            var circles = new {
+                id = circle.id,
+                status = circle.status,
+                circleName = circle.circleName,
+                startDate = String.Format("{0:yyyy-MM-dd}", circle.startDate),
+                endDate = String.Format("{0:{yyyy-MM-dd}", circle.endDate)
+            };
+           
             System.Web.HttpContext.Current.Application.UnLock();
-            return Json(circle);
+            return Json(circles);
         }
 
 
@@ -137,7 +146,6 @@ namespace ProjectSI_API.Controllers
         public async Task<IHttpActionResult> search(Models.CircleModel model)
         {
             System.Web.HttpContext.Current.Application.Lock();
-
                 var circle = from m in _db.Circle
                              select
                 new
@@ -146,25 +154,25 @@ namespace ProjectSI_API.Controllers
                         circleName = m.circleName,
                         startDate = m.startDate,
                         endDate = m.endDate,
-                     //   circleTime = m.circleTime,
                         status = m.status,
                      };
-                if (model.circleName != null) {
+            if (model.circleName != null)
+            {
                     circle = from m in circle where m.circleName.Contains(model.circleName) select m;
-                }
-            //      if (model.circleTime != 0) {
-            //     circle = from m in circle where  m.circleTime <= model.circleTime select m;
-            //  }
-//            if (model.startDate != null)
-//            {
-//                circle = from m in circle where m.startDate.Contains(model.startDate) select m;
-//            }
+            }
+            if (model.startDate.Equals("0001-01-01"))
+            {
+                circle = from m in circle where m.startDate == model.startDate select m;
+            }
+            if (model.startDate.Equals("0001-01-01"))
+            {
+                circle = from m in circle where m.endDate == model.endDate select m;
+            }
             if (model.status != 0)
-                {
-                    circle = from m in circle where m.status == model.status select m;
-                }
-           // circle = from m in circle orderby m.circleTime select m;
-
+            {
+                 circle = from m in circle where m.status == model.status select m;
+            }
+                circle = from m in circle orderby m.circleName select m;
 
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(circle);
