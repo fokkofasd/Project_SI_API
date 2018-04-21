@@ -38,10 +38,11 @@ namespace ProjectSI_API.Controllers
                 {
                     Evaluation e = _db.Evaluations.Where(p => p.evaluationName == model.evaluationName).FirstOrDefault();
                     List<UserTypeInEvaluation> utList = new List<UserTypeInEvaluation>();
-                    foreach (var ut in model.UserTypes)
+                    foreach (var uts in model.UserTypes)
                     {
+                        var ut = _db.UserTypes.Where(p => p.UserTypeName == uts.userTypeName).FirstOrDefault();
                         UserTypeInEvaluation usertype = new UserTypeInEvaluation();
-                        usertype.userTypeid = ut.userTypeid;
+                        usertype.userTypeid = ut.UserTypeId;
                         usertype.evaluationid = e.id;
                         utList.Add(usertype);
                     }
@@ -288,6 +289,8 @@ namespace ProjectSI_API.Controllers
                                     evaluationName = m.evaluationName,
                                     description = m.description
                                 };
+
+
                 if (model.evaluationName != null)
                 {
                     evaluation = from m in evaluation where m.evaluationName.Contains(model.evaluationName) select m;
@@ -301,4 +304,3 @@ namespace ProjectSI_API.Controllers
 
     }
 }
-

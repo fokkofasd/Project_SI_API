@@ -45,6 +45,7 @@ namespace ProjectSI_API.Models
 
     public class UserType
     {
-        public int userTypeid { get; set; }
+        //public int userTypeid { get; set; }
+        public string userTypeName { get; set; }
     }
 }

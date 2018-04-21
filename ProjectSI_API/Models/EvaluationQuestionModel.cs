@@ -21,5 +21,7 @@ namespace ProjectSI_API.Models
         public string description { get; set; }
 
         public List<Question> questions { get; set; }
+
+        public List<UserType> UserTypes { get; set; }
     }
 }
