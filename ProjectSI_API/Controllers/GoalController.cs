@@ -519,6 +519,104 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
+        //[Route("getSemesterAndYearA")]
+        //public void getSemesterAndYearA(DateTime dateT)
+        //{
+        //    System.Web.HttpContext.Current.Application.Lock();
+        //    var cycles = from c in _db.Circles select c;
+        //    foreach (var cycle in cycles)
+        //    {
+        //        if (cycle.startDate >= dateT || cycle.endDate <= dateT)
+        //        {
+        //            graphByYouself(cycle.semester, cycle.year);
+        //        }
+        //    }
+        //    System.Web.HttpContext.Current.Application.UnLock();
+
+        //}
+
+        //[Route("getSemesterAndYearB")]
+        //public void getSemesterAndYearB(int semester,int year)
+        //{
+        //    System.Web.HttpContext.Current.Application.Lock();
+        //    var cmID = User.Identity.GetUserId();
+
+        //    System.Web.HttpContext.Current.Application.UnLock();
+
+        //}
+
+        [Route("graphByYouself/{semester},{year}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> graphByYouself(int semester, int year)
+        {
+            Boolean result = false;
+            System.Web.HttpContext.Current.Application.Lock();
+            var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
+
+            var cmID = User.Identity.GetUserId();
+            var dataGoal = from g in _db.Goals
+                               join gl in _db.GoalHandlers on g.id equals gl.goalID
+                               where gl.userID.Equals(cmID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
+                               select new
+                               {
+                                   goalName = g.goalName,
+                                   description = g.description,
+                                   startDate = g.startDate,
+                                   endDate = g.endDate,
+                                   circleID = g.circleID,
+                               };
+            System.Web.HttpContext.Current.Application.UnLock();
+            int complete = 0;
+            int inComplete = 0;
+
+            foreach (var dg in dataGoal)
+            {
+                var datach = from c in _db.Checklists
+                               join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
+                               select new
+                               {
+                                   checklistProgress = cp.checklistProgress1
+                               };
+                foreach (var check in datach)
+                {
+                    if (check.checklistProgress == 2)
+                    {
+                        complete++;
+                    }
+                    else
+                    {
+                        inComplete++;
+                    }
+                }
+            }
+
+            float complete_token = (float)((complete * 100) / (complete + inComplete));
+            float inComplete_token = (float)(inComplete * 100) / (complete + inComplete);
+
+            var datachartPiePercent = new
+            {
+                complete = Math.Round(complete_token, 2) ,
+                inComplete = Math.Round(inComplete_token, 2),
+            };
+
+            return Json(datachartPiePercent);
+        }
+
+        //[Route("graphByCommander")]
+        //public async Task<IHttpActionResult> graphByCommander(DAL.Goal model)
+        //{
+        //    Boolean result = false;
+        //    System.Web.HttpContext.Current.Application.Lock();
+        //    var goal = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
+        //    if (goal == null || goal.goalName == model.goalName)
+        //    {
+        //        result = true;
+        //    }
+        //    System.Web.HttpContext.Current.Application.UnLock();
+
+        //    return Json(new { result = result });
+        //}
+
         //[Route("getGoalByCommander/{userId}")]
         //[HttpGet]
         //public async Task<IHttpActionResult> getGoalByCommander(string userId)
