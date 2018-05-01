@@ -16,7 +16,7 @@ namespace ProjectSI_API.Controllers
         SIDBEntities _db = new SIDBEntities();
 
         [Route("create")]
-        public async Task<IHttpActionResult> create(Models.CircleModel model)
+        public async Task<IHttpActionResult> create(Models.CircleAddModel model)
         {
                 if (!ModelState.IsValid)
                 {
@@ -26,17 +26,23 @@ namespace ProjectSI_API.Controllers
                 try
                 {
                          Circle circle = new Circle();
-                        circle.circleName = model.circleName;
-                        circle.startDate = model.startDate;
-                        circle.endDate = model.endDate;
-                        circle.status = model.status;
 
+                foreach (var q in model.circles)
+                {
+                    DAL.Circle c = new DAL.Circle();
+                    c.circleName = q.circleName;
+                    c.startDate = q.startDate;
+                    c.endDate = q.endDate;
+                    c.semester = q.semester;
+                    c.year = q.year;
+                    c.status = q.status;
 
-                System.Web.HttpContext.Current.Application.Lock();
-                     _db.Circles.Add(circle);
+                    _db.Circles.Add(c);
                     _db.SaveChanges();
-                    System.Web.HttpContext.Current.Application.UnLock();
+
+
                 }
+            }
                 catch (Exception e)
                 {
                     return Json(e.Message);
