@@ -341,7 +341,8 @@ namespace ProjectSI_API.Controllers
                         categoryName = g.Category.categoryName,
                         circleName = g.Circle.circleName,
                     //  circleTime = g.Circle.circleTime
-                        circleType = g.circleType
+                        circleType = g.circleType,
+                        userID = g.userID
                 };
 
 

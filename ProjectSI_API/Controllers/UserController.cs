@@ -379,15 +379,20 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.Lock();
             var userID = User.Identity.GetUserId();
             var user = from u in _db.Users
-                           where u.userID.Equals(userID)
-                           select new
+                       join TitleName in _db.TitleNames on u.titleNameID equals TitleName.titleNameID
+                       where u.userID.Equals(userID)
+                       select new
                            {
                                firstname = u.firstname,
                                lastname = u.lastname,
                                UserTypeId = u.UserType.UserTypeId,
                                UserTypeName = u.UserType.UserTypeName,
-                               userTypeID = u.userTypeID
-                           };
+                               userTypeID = u.userTypeID,
+                               titleNameID = u.titleNameID,
+                               titleName = TitleName.titleName1,
+                               userid = u.userID
+
+                       };
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(user);
         }
