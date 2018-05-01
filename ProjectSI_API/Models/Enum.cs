@@ -48,4 +48,16 @@ namespace ProjectSI_API.Models
         //public int userTypeid { get; set; }
         public string userTypeName { get; set; }
     }
+
+    public class Circle
+    {
+        public int id { get; set; }
+        public string circleName { get; set; }
+        public int status { get; set; }
+        public DateTime startDate { get; set; }
+        public DateTime endDate { get; set; }
+        public int year { get; set; }
+        public int semester { get; set; }
+
+    }
 }
