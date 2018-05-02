@@ -117,6 +117,7 @@ namespace ProjectSI_API.Controllers
             {
                 System.Web.HttpContext.Current.Application.Lock();
                 DAL.User nowUser = _db.Users.Where(p => p.userID == model.userID).First();
+                DAL.AspNetUser nowAccount = _db.AspNetUsers.Where(p => p.Id == nowUser.userID).First();
                 //DAL.User gen = new DAL.User();
                 nowUser.titleNameID = (int)model.titleNameID;
                 nowUser.personalID = model.personalID;
@@ -126,6 +127,7 @@ namespace ProjectSI_API.Controllers
                 nowUser.status = (int)model.status;
                 nowUser.commanderID = model.commanderID;
                 nowUser.personalID = model.personalID;
+                nowAccount.Email = model.email;
 
 
                 _db.SaveChanges();
@@ -238,6 +240,7 @@ namespace ProjectSI_API.Controllers
             System.Web.HttpContext.Current.Application.Lock();
             DAL.User user = _db.Users.Find(userId);
             DAL.AspNetUser aspNetUser = _db.AspNetUsers.Find(userId);
+
             var daoUser = new
             {
                 titleNameID = user.titleNameID,
@@ -247,7 +250,8 @@ namespace ProjectSI_API.Controllers
                 userTypeID = user.userTypeID,
                 commanderID = user.commanderID,
                 email = aspNetUser.Email,
-                status = user.status
+                status = user.status,
+                titilename = user.TitleName.titleName1
             };
             
             System.Web.HttpContext.Current.Application.UnLock();
