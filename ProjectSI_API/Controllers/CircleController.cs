@@ -115,12 +115,13 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("UpdateisDuplicateName")]
-        public async Task<IHttpActionResult> UpdateisDuplicateName(Models.Circle model)
+        public async Task<IHttpActionResult> UpdateisDuplicateName(Circle model)
         {
             Boolean result = false;
 
             var nowCircle = _db.Circles.Where(p => p.circleName == model.circleName).FirstOrDefault();
-            if (nowCircle == null || nowCircle.circleName == model.circleName)
+            var circle = _db.Circles.Where(p => p.id == model.id).FirstOrDefault();
+            if (nowCircle == null || circle.circleName == model.circleName)
             {
                 result = true;
             }
