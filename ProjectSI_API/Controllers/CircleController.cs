@@ -115,11 +115,11 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("UpdateisDuplicateName")]
-        public async Task<IHttpActionResult> UpdateisDuplicateName(Models.CircleModel model)
+        public async Task<IHttpActionResult> UpdateisDuplicateName(Models.Circle model)
         {
             Boolean result = false;
 
-            var nowCircle = _db.Circles.Where(p => p.id == model.id).FirstOrDefault();
+            var nowCircle = _db.Circles.Where(p => p.circleName == model.circleName).FirstOrDefault();
             if (nowCircle == null || nowCircle.circleName == model.circleName)
             {
                 result = true;
@@ -150,7 +150,7 @@ namespace ProjectSI_API.Controllers
 
 
         [Route("search")]
-        public async Task<IHttpActionResult> search(Models.CircleModel model)
+        public async Task<IHttpActionResult> search(DAL.Circle model)
         {
             System.Web.HttpContext.Current.Application.Lock();
                 var circle = from m in _db.Circles
@@ -167,11 +167,11 @@ namespace ProjectSI_API.Controllers
             {
                     circle = from m in circle where m.circleName.Contains(model.circleName) select m;
             }
-            if (model.startDate != null && model.startDate.Equals("0001-01-01"))
+            if (model.startDate != null )
             {
                 circle = from m in circle where m.startDate == model.startDate select m;
             }
-            if (model.endDate != null && model.endDate.Equals("0001-01-01"))
+            if (model.endDate != null )
             {
                 circle = from m in circle where m.endDate == model.endDate select m;
             }
@@ -182,7 +182,20 @@ namespace ProjectSI_API.Controllers
 
             circle = from m in circle orderby m.circleName select m;
 
-        
+            //var circles = from m in circle orderby m.circleName select new
+            //{
+            //    startDate = m.startDate,
+            //    endDate = m.endDate,
+            //    startDate = String.Format("{0:dd-MM-yyyy}", m.startDate),
+            //    endDate = String.Format("{0:dd-MM-yyyy}", m.endDate )
+            //};
+
+            //var circles_new = new {
+            //    startDate = circle.,
+            //    endDate = circle.endDate,
+            //    startDate = String.Format("{0:yyyy-MM-dd}", circle.startDate),
+            //    endDate = String.Format("{0:yyyy-MM-dd}", circle.endDate };
+
 
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(circle);
