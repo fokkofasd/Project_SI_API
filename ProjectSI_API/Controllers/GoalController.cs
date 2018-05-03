@@ -366,8 +366,8 @@ namespace ProjectSI_API.Controllers
             return Json(Goal);
         }
 
-        [Route("searchbyCommander")]
-        public async Task<IHttpActionResult> searchbyCommander(DAL.Goal model)
+        [Route("searchbyCommanderStudent")]
+        public async Task<IHttpActionResult> searchbyCommanderStudent(DAL.Goal model)
         {
 
             var userId = User.Identity.GetUserId();
@@ -390,6 +390,49 @@ namespace ProjectSI_API.Controllers
                             categoryID = g.categoryID,
                             categoryName = g.Category.categoryName,
                     
+                        };
+            if (model.goalName != null)
+            {
+                Goal = from m in Goal where m.goalName.Contains(model.goalName) select m;
+            }
+            if (model.categoryID != 0)
+            {
+                Goal = from m in Goal where m.categoryID == model.categoryID select m;
+            }
+            if (model.circleType != 0)
+            {
+                Goal = from m in Goal where m.circleType == model.circleType select m;
+            }
+
+            //Goal = from m in Goal group m by m.id into goalgroup orderby goalgroup.Key select goalgroup.Key;
+
+            return Json(Goal);
+        }
+
+        [Route("searchbyCommanderCourse")]
+        public async Task<IHttpActionResult> searchbyCommanderCourse(DAL.Goal model)
+        {
+
+            var userId = User.Identity.GetUserId();
+            var Goal = from g in _db.Goals
+                       join gl in _db.GoalHandlers on g.id equals gl.goalID
+                       where g.userID.Equals(userId) && gl.userID != userId
+                       select
+                        new
+                        {
+                            id = g.id,
+                            goalName = g.goalName,
+                            description = g.description,
+                            userName = g.User.firstname,
+                            userLastName = g.User.lastname,
+                            startDate = g.startDate,
+                            endDate = g.endDate,
+                            circleID = g.circleID,
+                            circleName = g.Circle.circleName,
+                            circleType = g.circleType,
+                            categoryID = g.categoryID,
+                            categoryName = g.Category.categoryName,
+
                         };
             if (model.goalName != null)
             {
@@ -580,8 +623,7 @@ namespace ProjectSI_API.Controllers
         {
             var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
 
-            var cmID = "a8abafa7-226c-4a75-be7f-61e08184adae";
-            //User.Identity.GetUserId()
+            var cmID = User.Identity.GetUserId();
             var dataGoal = from g in _db.Goals
                            join gl in _db.GoalHandlers on g.id equals gl.goalID
                            where gl.userID.Equals(cmID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
@@ -629,8 +671,7 @@ namespace ProjectSI_API.Controllers
         {
             var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
 
-            var cmID = "a8abafa7-226c-4a75-be7f-61e08184adae";
-            //User.Identity.GetUserId()
+            var cmID = User.Identity.GetUserId();
 
             List<graphCommanderModel> datagraph = new List<graphCommanderModel>();
 
@@ -689,12 +730,11 @@ namespace ProjectSI_API.Controllers
 
         [Route("graphByCommanderMajor/{semester},{year}")]
         [HttpGet]
-        public async Task<IHttpActionResult> graphByCommanderMajor(int semester, int year)
+        public async Task<IHttpActionResult> graphByCommanderCourse(int semester, int year)
         {
             var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
 
-            var cmID = "a8abafa7-226c-4a75-be7f-61e08184adae";
-            //User.Identity.GetUserId()
+            var cmID = User.Identity.GetUserId();
 
             List<graphCommanderModel> datagraph = new List<graphCommanderModel>();
 
