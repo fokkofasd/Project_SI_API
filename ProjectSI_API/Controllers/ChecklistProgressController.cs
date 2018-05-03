@@ -98,24 +98,21 @@ namespace ProjectSI_API.Controllers
                            clpId = clp.id
                        };
 
-                
                 foreach (var preDataClp in preDataClps)
                 {
                     DAL.ChecklistProgress checklistprogress = _db.ChecklistProgresses.Where(p => p.id == preDataClp.clpId).FirstOrDefault();
+                    checklistprogress.checklistProgress1 = 1;
+                    checklistprogress.time = DateTime.Now;
                     foreach (var clp in model.checklistProgresses)
                     {
-                        checklistprogress.checklistProgress1 = 1;
                         if (checklistprogress.id == clp.id)
                         {
                             checklistprogress.checklistProgress1 = 2;
                             break;
                         }
                     }
-                    checklistprogress.time = DateTime.Now;
-                    
-                    _db.SaveChanges();
                 }
-
+                _db.SaveChanges();
 
             }
             catch (Exception e)
