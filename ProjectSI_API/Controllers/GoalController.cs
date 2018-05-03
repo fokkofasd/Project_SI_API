@@ -39,6 +39,7 @@ namespace ProjectSI_API.Controllers
                 goal.circleID = model.circleID;
                 goal.userID = User.Identity.GetUserId();
                 goal.circleType = model.circleType;
+                goal.flag = model.flag;
 
                 System.Web.HttpContext.Current.Application.Lock();
                 _db.Goals.Add(goal);
@@ -141,6 +142,7 @@ namespace ProjectSI_API.Controllers
                 goal.circleID = model.circleID;
                 goal.userID = User.Identity.GetUserId();
                 goal.circleType = model.circleType;
+              
 
                 System.Web.HttpContext.Current.Application.Lock();
                 _db.SaveChanges();
@@ -327,6 +329,7 @@ namespace ProjectSI_API.Controllers
             var userId = User.Identity.GetUserId();
             var Goal = from gh in _db.GoalHandlers
                        join g in _db.Goals on gh.goalID equals g.id
+                       join c in _db.Circles on g.circleID equals c.id
                        where gh.userID.Equals(userId)
                        select
                 new
@@ -344,7 +347,9 @@ namespace ProjectSI_API.Controllers
                         circleName = g.Circle.circleName,
                     //  circleTime = g.Circle.circleTime
                         circleType = g.circleType,
-                        userID = g.userID
+                        userID = g.userID,
+                        startDate2 = g.Circle.startDate,
+                        endDate2 = g.Circle.endDate
                 };
 
 
@@ -372,8 +377,8 @@ namespace ProjectSI_API.Controllers
 
             var userId = User.Identity.GetUserId();
             var Goal = from g in _db.Goals
-                       join gl in _db.GoalHandlers on g.id equals gl.goalID
-                       where g.userID.Equals(userId) && gl.userID != userId
+                       join c in _db.Circles on g.circleID equals c.id
+                       where g.userID.Equals(userId) && g.flag == 2
                        select
                         new
                         {
@@ -389,7 +394,9 @@ namespace ProjectSI_API.Controllers
                             circleType = g.circleType,
                             categoryID = g.categoryID,
                             categoryName = g.Category.categoryName,
-                    
+                            startDate2 = g.Circle.startDate,
+                            endDate2 = g.Circle.endDate
+
                         };
             if (model.goalName != null)
             {
@@ -415,8 +422,8 @@ namespace ProjectSI_API.Controllers
 
             var userId = User.Identity.GetUserId();
             var Goal = from g in _db.Goals
-                       join gl in _db.GoalHandlers on g.id equals gl.goalID
-                       where g.userID.Equals(userId) && gl.userID != userId
+                       join c in _db.Circles on g.circleID equals c.id
+                       where g.userID.Equals(userId) && g.flag == 3
                        select
                         new
                         {
@@ -432,7 +439,8 @@ namespace ProjectSI_API.Controllers
                             circleType = g.circleType,
                             categoryID = g.categoryID,
                             categoryName = g.Category.categoryName,
-
+                            startDate2 = g.Circle.startDate,
+                            endDate2 = g.Circle.endDate
                         };
             if (model.goalName != null)
             {
