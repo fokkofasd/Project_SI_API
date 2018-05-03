@@ -34,6 +34,12 @@ namespace ProjectSI_API.Models
         public string value { get; set; }
     }
 
+    public class ChecklistPro
+    {
+        public int id { get; set; }
+        public int checklistProgress1 { get; set; }
+    }
+
     public class Choice
     {
         public string id { get; set; }
