@@ -317,6 +317,7 @@ namespace ProjectSI_API.Controllers
                        where u.commanderID.Equals(cmID)
                        select new
                        {
+                           titleNameID = u.titleNameID,
                            firstname = u.firstname,
                            lastname = u.lastname,
                            personalID = u.personalID,
@@ -324,8 +325,10 @@ namespace ProjectSI_API.Controllers
                            status = u.status,
                            userID = u.userID,
                            commanderID = u.commanderID,
-                           userTypeID = u.UserType.UserTypeName
+                           userTypeID = u.UserType.UserTypeName,
+                           titilename = u.TitleName.titleName1
                        };
+            usersinCM = from m in usersinCM orderby m.firstname select m;
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(usersinCM);
         }
@@ -397,6 +400,7 @@ namespace ProjectSI_API.Controllers
                                userid = u.userID
 
                        };
+           
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(user);
         }
