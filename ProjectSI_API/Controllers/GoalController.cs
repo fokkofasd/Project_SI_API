@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNet.Identity;
 using ProjectSI_API.DAL;
+using ProjectSI_API.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -45,10 +47,10 @@ namespace ProjectSI_API.Controllers
                 {
                     Goal g = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
                     
-                    List<Checklist> cList = new List<Checklist>();
+                    List<DAL.Checklist> cList = new List<DAL.Checklist>();
                     foreach (var c in model.checklists)
                     {
-                        Checklist checklist = new Checklist();
+                        DAL.Checklist checklist = new DAL.Checklist();
                         checklist.checklistName = c.value;
                         checklist.goalID = g.id;
                         cList.Add(checklist);
@@ -182,11 +184,11 @@ namespace ProjectSI_API.Controllers
                         _db.SaveChanges();
                     }
 
-                    List<Checklist> cList = new List<Checklist>();
+                    List<DAL.Checklist> cList = new List<DAL.Checklist>();
      
                     foreach (var c in model.checklists)
                     {
-                        Checklist checklist = new Checklist();
+                        DAL.Checklist checklist = new DAL.Checklist();
                         checklist.checklistName = c.value;
                         checklist.goalID = g.id;
                         cList.Add(checklist);
@@ -367,12 +369,11 @@ namespace ProjectSI_API.Controllers
         [Route("searchbyCommander")]
         public async Task<IHttpActionResult> searchbyCommander(DAL.Goal model)
         {
-            System.Web.HttpContext.Current.Application.Lock();
 
             var userId = User.Identity.GetUserId();
             var Goal = from g in _db.Goals
-                       join gh in _db.GoalHandlers on g.id equals gh.goalID
-                       where g.userID.Equals(userId) && gh.userID != userId
+                       join gl in _db.GoalHandlers on g.id equals gl.goalID
+                       where g.userID.Equals(userId) && gl.userID != userId
                        select
                 new
                 {
@@ -407,7 +408,6 @@ namespace ProjectSI_API.Controllers
 
             Goal = from m in Goal orderby m.goalName select m;
 
-            System.Web.HttpContext.Current.Application.UnLock();
             return Json(Goal);
         }
 
@@ -519,64 +519,94 @@ namespace ProjectSI_API.Controllers
             return Json(new { result = result });
         }
 
-        //[Route("getSemesterAndYearA")]
-        //public void getSemesterAndYearA(DateTime dateT)
+        //[Route("pieGraphByYouself/{semester},{year}")]
+        //[HttpGet]
+        //public async Task<IHttpActionResult> pieGraphByYouself(int semester, int year)
         //{
+        //    Boolean result = false;
         //    System.Web.HttpContext.Current.Application.Lock();
-        //    var cycles = from c in _db.Circles select c;
-        //    foreach (var cycle in cycles)
+        //    var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
+
+        //    var cmID = User.Identity.GetUserId();
+        //    var dataGoal = from g in _db.Goals
+        //                       join gl in _db.GoalHandlers on g.id equals gl.goalID
+        //                       where gl.userID.Equals(cmID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
+        //                       select new
+        //                       {
+        //                           goalName = g.goalName,
+        //                           description = g.description,
+        //                           startDate = g.startDate,
+        //                           endDate = g.endDate,
+        //                           circleID = g.circleID,
+        //                       };
+        //    System.Web.HttpContext.Current.Application.UnLock();
+        //    int complete = 0;
+        //    int inComplete = 0;
+
+        //    foreach (var dg in dataGoal)
         //    {
-        //        if (cycle.startDate >= dateT || cycle.endDate <= dateT)
+        //        var datach = from c in _db.Checklists
+        //                       join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
+        //                       select new
+        //                       {
+        //                           checklistProgress = cp.checklistProgress1
+        //                       };
+        //        foreach (var check in datach)
         //        {
-        //            graphByYouself(cycle.semester, cycle.year);
+        //            if (check.checklistProgress == 2)
+        //            {
+        //                complete++;
+        //            }
+        //            else
+        //            {
+        //                inComplete++;
+        //            }
         //        }
         //    }
-        //    System.Web.HttpContext.Current.Application.UnLock();
 
-        //}
+        //    float complete_token = (float)((complete * 100) / (complete + inComplete));
+        //    float inComplete_token = (float)(inComplete * 100) / (complete + inComplete);
 
-        //[Route("getSemesterAndYearB")]
-        //public void getSemesterAndYearB(int semester,int year)
-        //{
-        //    System.Web.HttpContext.Current.Application.Lock();
-        //    var cmID = User.Identity.GetUserId();
+        //    var datachartPiePercent = new
+        //    {
+        //        complete = Math.Round(complete_token, 2) ,
+        //        inComplete = Math.Round(inComplete_token, 2),
+        //    };
 
-        //    System.Web.HttpContext.Current.Application.UnLock();
-
+        //    return Json(datachartPiePercent);
         //}
 
         [Route("graphByYouself/{semester},{year}")]
         [HttpGet]
         public async Task<IHttpActionResult> graphByYouself(int semester, int year)
         {
-            Boolean result = false;
-            System.Web.HttpContext.Current.Application.Lock();
             var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
 
-            var cmID = User.Identity.GetUserId();
+            var cmID = "a8abafa7-226c-4a75-be7f-61e08184adae";
+            //User.Identity.GetUserId()
             var dataGoal = from g in _db.Goals
-                               join gl in _db.GoalHandlers on g.id equals gl.goalID
-                               where gl.userID.Equals(cmID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
-                               select new
-                               {
-                                   goalName = g.goalName,
-                                   description = g.description,
-                                   startDate = g.startDate,
-                                   endDate = g.endDate,
-                                   circleID = g.circleID,
-                               };
-            System.Web.HttpContext.Current.Application.UnLock();
-            int complete = 0;
-            int inComplete = 0;
+                           join gl in _db.GoalHandlers on g.id equals gl.goalID
+                           where gl.userID.Equals(cmID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
+                           select new
+                           {
+                               goalId = g.id,
+                               goalName = g.goalName,
+                               goalHandlerId = gl.id,
+                               circleID = g.circleID
+                           };
 
+            List<graphSelfModel> datagraph = new List<graphSelfModel>();
             foreach (var dg in dataGoal)
             {
+                int complete = 0;
+                int inComplete = 0;
                 var datach = from c in _db.Checklists
-                               join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
-                               select new
-                               {
-                                   checklistProgress = cp.checklistProgress1
-                               };
+                             join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
+                             where c.goalID.Equals(dg.goalId) && cp.goalHandlerID.Equals(dg.goalHandlerId)
+                             select new
+                             {
+                                 checklistProgress = cp.checklistProgress1
+                             };
                 foreach (var check in datach)
                 {
                     if (check.checklistProgress == 2)
@@ -588,65 +618,136 @@ namespace ProjectSI_API.Controllers
                         inComplete++;
                     }
                 }
+
+                float complete_token = (float)((complete * 100) / (complete + inComplete));
+                datagraph.Add(new graphSelfModel(dg.goalName, complete_token));
             }
-
-            float complete_token = (float)((complete * 100) / (complete + inComplete));
-            float inComplete_token = (float)(inComplete * 100) / (complete + inComplete);
-
-            var datachartPiePercent = new
-            {
-                complete = Math.Round(complete_token, 2) ,
-                inComplete = Math.Round(inComplete_token, 2),
-            };
-
-            return Json(datachartPiePercent);
+            return Json(datagraph);
         }
 
-        //[Route("graphByCommander")]
-        //public async Task<IHttpActionResult> graphByCommander(DAL.Goal model)
-        //{
-        //    Boolean result = false;
-        //    System.Web.HttpContext.Current.Application.Lock();
-        //    var goal = _db.Goals.Where(p => p.goalName == model.goalName).FirstOrDefault();
-        //    if (goal == null || goal.goalName == model.goalName)
-        //    {
-        //        result = true;
-        //    }
-        //    System.Web.HttpContext.Current.Application.UnLock();
+        [Route("graphByCommanderStudent/{semester},{year}")]
+        public async Task<IHttpActionResult> graphByCommanderStudent(int semester, int year)
+        {
+            var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
 
-        //    return Json(new { result = result });
-        //}
+            var cmID = "a8abafa7-226c-4a75-be7f-61e08184adae";
+            //User.Identity.GetUserId()
 
-        //[Route("getGoalByCommander/{userId}")]
-        //[HttpGet]
-        //public async Task<IHttpActionResult> getGoalByCommander(string userId)
-        //{
-        //    System.Web.HttpContext.Current.Application.Lock();
-        //    DAL.Goal goal = _db.Goals.Where(p => p.userID == userId).FirstOrDefault();
-        //    var user = from u in _db.Users
-        //               where u.userID.Equals(userId)
-        //               select new
-        //               {
-        //                   userID = u.userID,
-        //                   firstname = u.firstname,
-        //                   lastname = u.lastname
-        //               };
-        //    var goal = from g in _db.Goals
-        //               join cate in _db.Categories on g.id equals cate.id
-        //               join cir in _db.Circles on g.id equals cir.id
-        //               where g.userID.Contains(userId)
-        //               orderby cir.circleTime
-        //               select new
-        //               {
-        //                   goalName = g.goalName,
-        //                   description = g.description,
-        //                   startDate = g.startDate,
-        //                   endDate = g.endDate,
-        //                   categoryName = cate.categoryName,
-        //                   circleName = cir.circleName
-        //               };
-        //    System.Web.HttpContext.Current.Application.UnLock();
-        //    return Json(goal);
-        //}
+            List<graphCommanderModel> datagraph = new List<graphCommanderModel>();
+
+            var dataUserinCommands = from u in _db.Users
+                                     where u.commanderID.Equals(cmID) && u.userTypeID.Equals(1)
+                                     select new
+                                     {
+                                         userID = u.userID,
+                                         name = u.firstname,
+                                         lastname = u.lastname
+                                     };
+
+            foreach (var dataUserinCommand in dataUserinCommands)
+            {
+                var dataGoal = from g in _db.Goals
+                               join gl in _db.GoalHandlers on g.id equals gl.goalID
+                               where gl.userID.Equals(dataUserinCommand.userID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
+                               select new
+                               {
+                                   goalId = g.id,
+                                   goalName = g.goalName,
+                                   goalHandlerId = gl.id,
+                                   circleID = g.circleID
+                               };
+
+                int complete = 0;
+                int inComplete = 0;
+                foreach (var dg in dataGoal)
+                {
+                    var datach = from c in _db.Checklists
+                                 join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
+                                 select new
+                                 {
+                                     checklistProgress = cp.checklistProgress1
+                                 };
+                    foreach (var check in datach)
+                    {
+                        if (check.checklistProgress == 2)
+                        {
+                            complete++;
+                        }
+                        else
+                        {
+                            inComplete++;
+                        }
+                    }
+
+                }
+                float complete_token = (float)((complete * 100) / (complete + inComplete));
+                datagraph.Add(new graphCommanderModel(dataUserinCommand.name+" "+ dataUserinCommand.lastname, complete_token));
+            }
+
+            return Json(datagraph);
+        }
+
+        [Route("graphByCommanderMajor/{semester},{year}")]
+        public async Task<IHttpActionResult> graphByCommanderMajor(int semester, int year)
+        {
+            var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
+
+            var cmID = "a8abafa7-226c-4a75-be7f-61e08184adae";
+            //User.Identity.GetUserId()
+
+            List<graphCommanderModel> datagraph = new List<graphCommanderModel>();
+
+            var dataUserinCommands = from u in _db.Users
+                                     where u.commanderID.Equals(cmID) && u.userTypeID.Equals(2)
+                                     select new
+                                     {
+                                         userID = u.userID,
+                                         name = u.firstname,
+                                         lastname = u.lastname
+                                     };
+
+            foreach (var dataUserinCommand in dataUserinCommands)
+            {
+                var dataGoal = from g in _db.Goals
+                               join gl in _db.GoalHandlers on g.id equals gl.goalID
+                               where gl.userID.Equals(dataUserinCommand.userID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
+                               select new
+                               {
+                                   goalId = g.id,
+                                   goalName = g.goalName,
+                                   goalHandlerId = gl.id,
+                                   circleID = g.circleID
+                               };
+
+                int complete = 0;
+                int inComplete = 0;
+                foreach (var dg in dataGoal)
+                {
+                    var datach = from c in _db.Checklists
+                                 join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
+                                 select new
+                                 {
+                                     checklistProgress = cp.checklistProgress1
+                                 };
+                    foreach (var check in datach)
+                    {
+                        if (check.checklistProgress == 2)
+                        {
+                            complete++;
+                        }
+                        else
+                        {
+                            inComplete++;
+                        }
+                    }
+
+                }
+                float complete_token = (float)((complete * 100) / (complete + inComplete));
+                datagraph.Add(new graphCommanderModel(dataUserinCommand.name + " " + dataUserinCommand.lastname, complete_token));
+            }
+
+            return Json(datagraph);
+        }
+
     }
 }
