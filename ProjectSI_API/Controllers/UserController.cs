@@ -196,7 +196,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = false;
 
             var nowUser = _db.Users.Where(p => p.personalID == model.personalID).FirstOrDefault();
-            if (nowUser == null)
+            if (nowUser == null || nowUser.personalID == null)
             {
                 result = true;
             }
@@ -211,7 +211,7 @@ namespace ProjectSI_API.Controllers
             Boolean result = false;
 
             var nowUser = _db.AspNetUsers.Where(p => p.Email == model.email).FirstOrDefault();
-            if (nowUser == null)
+            if (nowUser == null || nowUser.Email == null)
             {
                 result = true;
             }
@@ -220,12 +220,13 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("isDuplicateEmailUpdate")]
-        public async Task<IHttpActionResult> isDuplicateEmailUpdate(UserModels model)
+        public async Task<IHttpActionResult> isDuplicateEmailUpdate(Models.UserModels model)
         {
             Boolean result = false;
 
             var nowUser = _db.AspNetUsers.Where(p => p.Email == model.email).FirstOrDefault();
-            if (nowUser == null || nowUser.Email == model.email)
+            var user = _db.AspNetUsers.Where(p => p.Id == model.userID).FirstOrDefault();
+            if (nowUser == null || user.Email == model.email)
             {
                 result = true;
             }
@@ -306,15 +307,15 @@ namespace ProjectSI_API.Controllers
             return Json(user);
         }
 
-        [Route("getuserByCommanderId")]
+        [Route("getuserByCommanderIdTeacher")]
         [HttpGet]
-        public async Task<IHttpActionResult> getuserByCommanderId()
+        public async Task<IHttpActionResult> getuserByCommanderIdTeacher()
         {
             System.Web.HttpContext.Current.Application.Lock();
             var cmID = User.Identity.GetUserId();
             var usersinCM = from u in _db.Users
                             join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
-                       where u.commanderID.Equals(cmID)
+                       where u.userTypeID == 2 && u.commanderID.Equals(cmID)
                        select new
                        {
                            titleNameID = u.titleNameID,
@@ -328,6 +329,33 @@ namespace ProjectSI_API.Controllers
                            userTypeID = u.UserType.UserTypeName,
                            titilename = u.TitleName.titleName1
                        };
+            usersinCM = from m in usersinCM orderby m.firstname select m;
+            System.Web.HttpContext.Current.Application.UnLock();
+            return Json(usersinCM);
+        }
+
+        [Route("getuserByCommanderIdStudent")]
+        [HttpGet]
+        public async Task<IHttpActionResult> getuserByCommanderIdStudent()
+        {
+            System.Web.HttpContext.Current.Application.Lock();
+            var cmID = User.Identity.GetUserId();
+            var usersinCM = from u in _db.Users
+                            join aspUser in _db.AspNetUsers on u.userID equals aspUser.Id
+                            where u.userTypeID == 1 && u.commanderID.Equals(cmID)
+                            select new
+                            {
+                                titleNameID = u.titleNameID,
+                                firstname = u.firstname,
+                                lastname = u.lastname,
+                                personalID = u.personalID,
+                                email = aspUser.Email,
+                                status = u.status,
+                                userID = u.userID,
+                                commanderID = u.commanderID,
+                                userTypeID = u.UserType.UserTypeName,
+                                titilename = u.TitleName.titleName1
+                            };
             usersinCM = from m in usersinCM orderby m.firstname select m;
             System.Web.HttpContext.Current.Application.UnLock();
             return Json(usersinCM);
