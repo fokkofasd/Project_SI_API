@@ -45,5 +45,9 @@ namespace ProjectSI_API.Models
         public String[] users { get; set; }
 
         public List<Checklist> checklists { get; set; }
+
+        public List<ChecklistPro> checklistProgresses { get; set; }
+
+        public int goalHandlerId { get; set; }
     }
   }
