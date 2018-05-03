@@ -8,9 +8,9 @@ namespace ProjectSI_API.Models
     public class graphSelfModel
     {
         public string goalName { get; set; }
-        public float percent { get; set; }
+        public double percent { get; set; }
 
-        public graphSelfModel(string goalName, float percent)
+        public graphSelfModel(string goalName, double percent)
         {
             this.goalName = goalName;
             this.percent = percent;

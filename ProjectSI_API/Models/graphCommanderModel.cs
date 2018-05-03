@@ -8,9 +8,9 @@ namespace ProjectSI_API.Models
     public class graphCommanderModel
     {
         public string studentName { get; set; }
-        public float percentAverage { get; set; }
+        public double percentAverage { get; set; }
 
-        public graphCommanderModel(string studentName, float percentAverage)
+        public graphCommanderModel(string studentName, double percentAverage)
         {
             this.studentName = studentName;
             this.percentAverage = percentAverage;

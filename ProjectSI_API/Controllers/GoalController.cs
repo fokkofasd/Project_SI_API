@@ -375,24 +375,22 @@ namespace ProjectSI_API.Controllers
                        join gl in _db.GoalHandlers on g.id equals gl.goalID
                        where g.userID.Equals(userId) && gl.userID != userId
                        select
-                new
-                {
-                    id = g.id,
-                    goalName = g.goalName,
-                    description = g.description,
-                    categoryID = g.categoryID,
-                    circleID = g.circleID,
-                    userName = g.User.firstname,
-                    userLastName = g.User.lastname,
-                    startDate = String.Format("{0:yyyy-MM-dd}", g.startDate),
-                    endDate = String.Format("{0:{yyyy-MM-dd}", g.endDate),
-                    categoryName = g.Category.categoryName,
-                    circleName = g.Circle.circleName,
-                    //     circleTime = g.Circle.circleTime
-                    circleType = g.circleType
-
-
-                };
+                        new
+                        {
+                            id = g.id,
+                            goalName = g.goalName,
+                            description = g.description,
+                            userName = g.User.firstname,
+                            userLastName = g.User.lastname,
+                            startDate = g.startDate,
+                            endDate = g.endDate,
+                            circleID = g.circleID,
+                            circleName = g.Circle.circleName,
+                            circleType = g.circleType,
+                            categoryID = g.categoryID,
+                            categoryName = g.Category.categoryName,
+                    
+                        };
             if (model.goalName != null)
             {
                 Goal = from m in Goal where m.goalName.Contains(model.goalName) select m;
@@ -598,8 +596,8 @@ namespace ProjectSI_API.Controllers
             List<graphSelfModel> datagraph = new List<graphSelfModel>();
             foreach (var dg in dataGoal)
             {
-                int complete = 0;
-                int inComplete = 0;
+                double complete = 0;
+                double inComplete = 0;
                 var datach = from c in _db.Checklists
                              join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
                              where c.goalID.Equals(dg.goalId) && cp.goalHandlerID.Equals(dg.goalHandlerId)
@@ -619,13 +617,14 @@ namespace ProjectSI_API.Controllers
                     }
                 }
 
-                float complete_token = (float)((complete * 100) / (complete + inComplete));
+                double complete_token = Math.Round((complete * 100) / (complete + inComplete), 2);
                 datagraph.Add(new graphSelfModel(dg.goalName, complete_token));
             }
             return Json(datagraph);
         }
 
         [Route("graphByCommanderStudent/{semester},{year}")]
+        [HttpGet]
         public async Task<IHttpActionResult> graphByCommanderStudent(int semester, int year)
         {
             var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
@@ -657,12 +656,13 @@ namespace ProjectSI_API.Controllers
                                    circleID = g.circleID
                                };
 
-                int complete = 0;
-                int inComplete = 0;
+                double complete = 0;
+                double inComplete = 0;
                 foreach (var dg in dataGoal)
                 {
                     var datach = from c in _db.Checklists
                                  join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
+                                 where c.goalID.Equals(dg.goalId) && cp.goalHandlerID.Equals(dg.goalHandlerId)
                                  select new
                                  {
                                      checklistProgress = cp.checklistProgress1
@@ -680,7 +680,7 @@ namespace ProjectSI_API.Controllers
                     }
 
                 }
-                float complete_token = (float)((complete * 100) / (complete + inComplete));
+                double complete_token = Math.Round((complete * 100) / (complete + inComplete), 2);
                 datagraph.Add(new graphCommanderModel(dataUserinCommand.name+" "+ dataUserinCommand.lastname, complete_token));
             }
 
@@ -688,6 +688,7 @@ namespace ProjectSI_API.Controllers
         }
 
         [Route("graphByCommanderMajor/{semester},{year}")]
+        [HttpGet]
         public async Task<IHttpActionResult> graphByCommanderMajor(int semester, int year)
         {
             var circle = _db.Circles.Where(p => p.semester == semester && p.year == year).FirstOrDefault();
@@ -719,12 +720,13 @@ namespace ProjectSI_API.Controllers
                                    circleID = g.circleID
                                };
 
-                int complete = 0;
-                int inComplete = 0;
+                double complete = 0;
+                double inComplete = 0;
                 foreach (var dg in dataGoal)
                 {
                     var datach = from c in _db.Checklists
                                  join cp in _db.ChecklistProgresses on c.id equals cp.checklistID
+                                 where c.goalID.Equals(dg.goalId) && cp.goalHandlerID.Equals(dg.goalHandlerId)
                                  select new
                                  {
                                      checklistProgress = cp.checklistProgress1
@@ -742,7 +744,7 @@ namespace ProjectSI_API.Controllers
                     }
 
                 }
-                float complete_token = (float)((complete * 100) / (complete + inComplete));
+                double complete_token = Math.Round((complete * 100) / (complete + inComplete),2);
                 datagraph.Add(new graphCommanderModel(dataUserinCommand.name + " " + dataUserinCommand.lastname, complete_token));
             }
 
