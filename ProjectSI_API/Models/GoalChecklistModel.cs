@@ -49,5 +49,7 @@ namespace ProjectSI_API.Models
         public List<ChecklistPro> checklistProgresses { get; set; }
 
         public int goalHandlerId { get; set; }
+
+        public int flag { get; set; }
     }
   }
