@@ -356,9 +356,9 @@ namespace ProjectSI_API.Controllers
             {
                 Goal = from m in Goal where m.categoryID == model.categoryID select m;
             }
-            if (model.circleID != 0)
+            if (model.circleType != 0)
             {
-                Goal = from m in Goal where m.circleID == model.circleID select m;
+                Goal = from m in Goal where m.circleType == model.circleType select m;
             }
             Goal = from m in Goal orderby m.goalName select m;
 
@@ -399,9 +399,9 @@ namespace ProjectSI_API.Controllers
             {
                 Goal = from m in Goal where m.categoryID == model.categoryID select m;
             }
-            if (model.circleID != 0)
+            if (model.circleType != 0)
             {
-                Goal = from m in Goal where m.circleID == model.circleID select m;
+                Goal = from m in Goal where m.circleType == model.circleType select m;
             }
 
             Goal = from m in Goal orderby m.goalName select m;
