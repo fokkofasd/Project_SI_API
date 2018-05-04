@@ -697,7 +697,7 @@ namespace ProjectSI_API.Controllers
             {
                 var dataGoal = from g in _db.Goals
                                join gl in _db.GoalHandlers on g.id equals gl.goalID
-                               where gl.userID.Equals(dataUserinCommand.userID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
+                               where gl.userID.Equals(dataUserinCommand.userID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id) && g.flag.Equals(2)
                                select new
                                {
                                    goalId = g.id,
@@ -760,7 +760,7 @@ namespace ProjectSI_API.Controllers
             {
                 var dataGoal = from g in _db.Goals
                                join gl in _db.GoalHandlers on g.id equals gl.goalID
-                               where gl.userID.Equals(dataUserinCommand.userID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id)
+                               where gl.userID.Equals(dataUserinCommand.userID) && g.circleType.Equals(1) && g.circleID.Equals(circle.id) && g.flag.Equals(2)
                                select new
                                {
                                    goalId = g.id,
