@@ -348,6 +348,7 @@ namespace ProjectSI_API.Controllers
                     //  circleTime = g.Circle.circleTime
                         circleType = g.circleType,
                         userID = g.userID,
+                        me = userId,
                         startDate2 = g.Circle.startDate,
                         endDate2 = g.Circle.endDate
                 };
